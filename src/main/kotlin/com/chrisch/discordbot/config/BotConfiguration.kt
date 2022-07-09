@@ -20,13 +20,13 @@ import java.time.Duration
 class BotConfiguration(private val emojiStore: EmojiStore) {
 
     @Value("#{environment.TOKEN}")
-    private val token: String? = null
+    private val token: String = ""
 
     private val log = LoggerFactory.getLogger(BotConfiguration::class.java)
 
     @Bean
     fun <T : Event> gatewayDiscordClient(eventListeners: List<EventListener<T>>): GatewayDiscordClient? {
-        return DiscordClientBuilder.create(token!!)
+        return DiscordClientBuilder.create(token)
             .build()
             .gateway()
             .withEventDispatcher { eventDispatcher -> subscribeToEvents(eventDispatcher, eventListeners) }

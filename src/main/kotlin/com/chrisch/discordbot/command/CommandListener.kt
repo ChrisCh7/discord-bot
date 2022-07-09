@@ -18,6 +18,15 @@ class CommandListener(
 ) {
     private val log = LoggerFactory.getLogger(javaClass)
 
+    init {
+        client.on(ChatInputInteractionEvent::class.java).flatMap { event -> handle(event, commandHandlersChat) }
+            .onErrorResume { throwable -> logCommandError(throwable) }.subscribe()
+        client.on(MessageInteractionEvent::class.java).flatMap { event -> handle(event, commandHandlersMessage) }
+            .onErrorResume { throwable -> logCommandError(throwable) }.subscribe()
+        client.on(UserInteractionEvent::class.java).flatMap { event -> handle(event, commandHandlersUser) }
+            .onErrorResume { throwable -> logCommandError(throwable) }.subscribe()
+    }
+
     fun <T : ApplicationCommandInteractionEvent> handle(event: T, commands: List<CommandHandler<T>>): Mono<Void> {
         return Flux.fromIterable(commands)
             .filter { command -> command.name == event.commandName }
@@ -28,14 +37,5 @@ class CommandListener(
     private fun logCommandError(throwable: Throwable): Mono<Void> {
         log.error("Unable to process command", throwable)
         return Mono.empty()
-    }
-
-    init {
-        client.on(ChatInputInteractionEvent::class.java).flatMap { event -> handle(event, commandHandlersChat) }
-            .onErrorResume { throwable -> logCommandError(throwable) }.subscribe()
-        client.on(MessageInteractionEvent::class.java).flatMap { event -> handle(event, commandHandlersMessage) }
-            .onErrorResume { throwable -> logCommandError(throwable) }.subscribe()
-        client.on(UserInteractionEvent::class.java).flatMap { event -> handle(event, commandHandlersUser) }
-            .onErrorResume { throwable -> logCommandError(throwable) }.subscribe()
     }
 }

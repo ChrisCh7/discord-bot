@@ -12,10 +12,10 @@ import java.time.Instant
 class AntiMultiChannelSpam : EventListener<MessageCreateEvent> {
 
     @Value("\${MUTED_ROLE_ID}")
-    private val mutedRoleId: String? = null
+    private val mutedRoleId: String = ""
 
     @Value("\${REPORTS_CHANNEL_ID}")
-    private val reportChannelId: String? = null
+    private val reportChannelId: String = ""
 
     private data class UserMessage(
         val message: String,
@@ -64,12 +64,12 @@ class AntiMultiChannelSpam : EventListener<MessageCreateEvent> {
 
             return message.authorAsMember
                 .flatMapMany { it.roles }
-                .filter { role -> role.id == Snowflake.of(mutedRoleId!!) }
+                .filter { role -> role.id == Snowflake.of(mutedRoleId) }
                 .count()
                 .flatMap { count ->
                     if (count == 0L) {
                         message.authorAsMember
-                            .flatMap { member -> member.addRole(Snowflake.of(mutedRoleId!!), "multi-channel spam") }
+                            .flatMap { member -> member.addRole(Snowflake.of(mutedRoleId), "multi-channel spam") }
                     } else Mono.empty()
                 }.thenMany(
                     Flux.fromIterable(userMessages[authorId]!!)
@@ -88,7 +88,7 @@ class AntiMultiChannelSpam : EventListener<MessageCreateEvent> {
                 .flatMap { purgeStarted ->
                     if (purgeStarted) {
                         return@flatMap message.guild
-                            .flatMap { guild -> guild.getChannelById(Snowflake.of(reportChannelId!!)) }
+                            .flatMap { guild -> guild.getChannelById(Snowflake.of(reportChannelId)) }
                             .flatMap { guildChannel ->
                                 guildChannel.restChannel.createMessage(
                                     "User: ${message.author.orElseThrow().tag} (${message.author.orElseThrow().id.asString()})\n" +

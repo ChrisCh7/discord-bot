@@ -16,7 +16,7 @@ class CommandDeployer(
 ) : ApplicationRunner {
 
     @Value("\${GUILD_ID}")
-    private val guildId: String? = null
+    private val guildId: String = ""
 
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -25,7 +25,7 @@ class CommandDeployer(
             .flatMap { applicationId ->
                 client.applicationService
                     .bulkOverwriteGuildApplicationCommand(
-                        applicationId!!, guildId!!.toLong(), commandListeners.stream()
+                        applicationId!!, guildId.toLong(), commandListeners.stream()
                             .map { it.command }.toList()
                     ).count()
             }.doOnNext { count -> log.info("Successfully registered $count application commands.") }

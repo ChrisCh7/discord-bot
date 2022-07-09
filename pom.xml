@@ -47,6 +47,10 @@
             <artifactId>kotlinx-coroutines-reactor</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.jetbrains.kotlinx</groupId>
+            <artifactId>kotlinx-coroutines-core</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.discord4j</groupId>
             <artifactId>discord4j-core</artifactId>
             <version>3.2.2</version>
