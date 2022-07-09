@@ -1,0 +1,59 @@
+{
+  "properties": [
+    {
+      "name": "GUILD_ID",
+      "type": "java.lang.String",
+      "description": "Description for GUILD_ID."
+    },
+    {
+      "name": "DEVELOPER_ID",
+      "type": "java.lang.String",
+      "description": "Description for DEVELOPER_ID."
+    },
+    {
+      "name": "PRISONER_ROLE_ID",
+      "type": "java.lang.String",
+      "description": "Description for PRISONER_ROLE_ID."
+    },
+    {
+      "name": "SUGGESTIONS_CHANNEL_ID",
+      "type": "java.lang.String",
+      "description": "Description for SUGGESTIONS_CHANNEL_ID."
+    },
+    {
+      "name": "LOGS_CHANNEL_ID",
+      "type": "java.lang.String",
+      "description": "Description for LOGS_CHANNEL_ID."
+    },
+    {
+      "name": "LOGS_REACTIONS_CHANNEL_ID",
+      "type": "java.lang.String",
+      "description": "Description for LOGS_REACTIONS_CHANNEL_ID."
+    },
+    {
+      "name": "TRACKED_CHANNEL_ID_1",
+      "type": "java.lang.String",
+      "description": "Description for TRACKED_CHANNEL_ID_1."
+    },
+    {
+      "name": "TRACKED_MESSAGE_ID_1",
+      "type": "java.lang.String",
+      "description": "Description for TRACKED_MESSAGE_ID_1."
+    },
+    {
+      "name": "MUTED_ROLE_ID",
+      "type": "java.lang.String",
+      "description": "Description for MUTED_ROLE_ID."
+    },
+    {
+      "name": "REPORTS_CHANNEL_ID",
+      "type": "java.lang.String",
+      "description": "Description for REPORTS_CHANNEL_ID."
+    },
+    {
+      "name": "COUNTING_CHANNEL_ID",
+      "type": "java.lang.String",
+      "description": "Description for COUNTING_CHANNEL_ID."
+    }
+  ]
+}
