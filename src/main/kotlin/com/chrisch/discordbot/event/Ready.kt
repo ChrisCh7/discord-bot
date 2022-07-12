@@ -10,8 +10,7 @@ class Ready : EventListener<ReadyEvent> {
 
     private val log = LoggerFactory.getLogger(javaClass)
 
-    override val eventType: Class<ReadyEvent>
-        get() = ReadyEvent::class.java
+    override val eventType: Class<ReadyEvent> = ReadyEvent::class.java
 
     override fun execute(event: ReadyEvent): Mono<Void> {
         log.info("Ready! Logged in as ${event.self.tag}")

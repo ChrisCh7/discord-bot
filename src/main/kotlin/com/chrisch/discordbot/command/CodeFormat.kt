@@ -13,8 +13,7 @@ import reactor.core.publisher.Mono
 @Service
 class CodeFormat : CommandHandler<ChatInputInteractionEvent> {
 
-    override val name: String
-        get() = "codeformat"
+    override val name: String = "codeformat"
 
     override val command: ApplicationCommandRequest
         get() = ApplicationCommandRequest.builder()
@@ -38,7 +37,7 @@ class CodeFormat : CommandHandler<ChatInputInteractionEvent> {
 
     override fun handle(event: ChatInputInteractionEvent): Mono<Void> {
         return event.interaction.channel
-            .flatMap { channel -> channel.getMessageById(Snowflake.of(getOptionValue(event, "message_id").asString())) }
+            .flatMap { it.getMessageById(Snowflake.of(getOptionValue(event, "message_id").asString())) }
             .flatMap { message ->
                 event.reply(
                     getCodeBlock(

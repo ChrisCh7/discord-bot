@@ -19,19 +19,19 @@ class CommandListener(
     private val log = LoggerFactory.getLogger(javaClass)
 
     init {
-        client.on(ChatInputInteractionEvent::class.java).flatMap { event -> handle(event, commandHandlersChat) }
-            .onErrorResume { throwable -> logCommandError(throwable) }.subscribe()
-        client.on(MessageInteractionEvent::class.java).flatMap { event -> handle(event, commandHandlersMessage) }
-            .onErrorResume { throwable -> logCommandError(throwable) }.subscribe()
-        client.on(UserInteractionEvent::class.java).flatMap { event -> handle(event, commandHandlersUser) }
-            .onErrorResume { throwable -> logCommandError(throwable) }.subscribe()
+        client.on(ChatInputInteractionEvent::class.java).flatMap { handle(it, commandHandlersChat) }
+            .onErrorResume { logCommandError(it) }.subscribe()
+        client.on(MessageInteractionEvent::class.java).flatMap { handle(it, commandHandlersMessage) }
+            .onErrorResume { logCommandError(it) }.subscribe()
+        client.on(UserInteractionEvent::class.java).flatMap { handle(it, commandHandlersUser) }
+            .onErrorResume { logCommandError(it) }.subscribe()
     }
 
     fun <T : ApplicationCommandInteractionEvent> handle(event: T, commands: List<CommandHandler<T>>): Mono<Void> {
         return Flux.fromIterable(commands)
-            .filter { command -> command.name == event.commandName }
+            .filter { it.name == event.commandName }
             .next()
-            .flatMap { command -> command.handle(event) }
+            .flatMap { it.handle(event) }
     }
 
     private fun logCommandError(throwable: Throwable): Mono<Void> {

@@ -9,8 +9,7 @@ import java.time.Duration
 
 @Service
 class MessageCreate : EventListener<MessageCreateEvent> {
-    override val eventType: Class<MessageCreateEvent>
-        get() = MessageCreateEvent::class.java
+    override val eventType: Class<MessageCreateEvent> = MessageCreateEvent::class.java
 
     override fun execute(event: MessageCreateEvent): Mono<Void> {
         val message = event.message

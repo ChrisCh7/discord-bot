@@ -1,6 +1,7 @@
 package com.chrisch.discordbot.event
 
 import discord4j.common.util.Snowflake
+import discord4j.core.`object`.entity.channel.TopLevelGuildMessageChannel
 import discord4j.core.event.domain.message.MessageCreateEvent
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
@@ -31,8 +32,7 @@ class AntiMultiChannelSpam : EventListener<MessageCreateEvent> {
 
     private val userMessages: ConcurrentHashMap<Snowflake, CopyOnWriteArrayList<UserMessage>> = ConcurrentHashMap()
 
-    override val eventType: Class<MessageCreateEvent>
-        get() = MessageCreateEvent::class.java
+    override val eventType: Class<MessageCreateEvent> = MessageCreateEvent::class.java
 
     override fun execute(event: MessageCreateEvent): Mono<Void> {
         val message = event.message
@@ -78,21 +78,27 @@ class AntiMultiChannelSpam : EventListener<MessageCreateEvent> {
 
                     userMessages[authorId]!!.forEach { userMessage ->
                         if (!userMessage.deleted) {
-                            guild.getChannelById(userMessage.channelId).awaitSingle()
-                                .restChannel.message(userMessage.messageId).delete(null).awaitSingleOrNull()
+                            guild.getChannelById(userMessage.channelId)
+                                .ofType(TopLevelGuildMessageChannel::class.java)
+                                .flatMap { it.getMessageById(userMessage.messageId) }
+                                .flatMap { it.delete() }
+                                .onErrorResume { Mono.empty() }.awaitSingleOrNull()
                             userMessage.deleted = true
                         }
                     }
 
                     if (!purgeAlreadyStarted) {
-                        guild.getChannelById(Snowflake.of(reportChannelId)).awaitSingle()
-                            .restChannel.createMessage(
-                                "User: ${message.author.orElseThrow().tag} (${message.author.orElseThrow().id.asString()})\n" +
-                                        "Reason: multi-channel spam\n" +
-                                        "Proof:\n" +
-                                        "```\n${message.content}\n```" +
-                                        "Action took: muted"
-                            ).awaitSingle()
+                        guild.getChannelById(Snowflake.of(reportChannelId))
+                            .ofType(TopLevelGuildMessageChannel::class.java)
+                            .flatMap {
+                                it.createMessage(
+                                    "User: ${message.author.orElseThrow().tag} (${message.author.orElseThrow().id.asString()})\n" +
+                                            "Reason: multi-channel spam\n" +
+                                            "Proof:\n" +
+                                            "```\n${message.content}\n```" +
+                                            "Action took: muted"
+                                )
+                            }.onErrorResume { Mono.empty() }.awaitSingleOrNull()
                     }
                 }
             }.awaitSingleOrNull()
