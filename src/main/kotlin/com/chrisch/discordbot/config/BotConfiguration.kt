@@ -33,14 +33,14 @@ class BotConfiguration(private val emojiStore: EmojiStore) {
             .setEnabledIntents(IntentSet.of(Intent.GUILDS, Intent.GUILD_MESSAGES, Intent.GUILD_MESSAGE_REACTIONS))
             .login()
             .delayElement(Duration.ofSeconds(10))
-            .doOnNext { client ->
+            .flatMap { client ->
                 client.guilds
                     .flatMap { it.emojis }
                     .filter { it.isAvailable }
                     .doOnNext { guildEmoji -> emojiStore.emojis[guildEmoji.name] = guildEmoji.asFormat() }
                     .count()
                     .doOnNext { count -> log.info("Cached $count emojis successfully.") }
-                    .subscribe()
+                    .thenReturn(client)
             }
             .block()
     }
