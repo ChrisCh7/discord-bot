@@ -68,7 +68,7 @@ class EmojiReplacer(private val emojiStore: EmojiStore) : EventListener<MessageC
                     .awaitSingle()
 
                 webhook.executeAndWait(WebhookExecuteSpec.builder().content(finalMessage).build())
-                    .onErrorResume { Mono.empty() }.awaitSingle()
+                    .onErrorResume { Mono.empty() }.awaitSingleOrNull()
                 webhook.delete().awaitSingleOrNull()
                 message.delete().awaitSingleOrNull()
             }
