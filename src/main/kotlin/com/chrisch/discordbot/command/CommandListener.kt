@@ -27,8 +27,8 @@ class CommandListener(
             .onErrorResume { logCommandError(it) }.subscribe()
     }
 
-    fun <T : ApplicationCommandInteractionEvent> handle(event: T, commands: List<CommandHandler<T>>): Mono<Void> {
-        return Flux.fromIterable(commands)
+    fun <T : ApplicationCommandInteractionEvent> handle(event: T, handlers: List<CommandHandler<T>>): Mono<Void> {
+        return Flux.fromIterable(handlers)
             .filter { it.name == event.commandName }
             .next()
             .flatMap { it.handle(event) }
