@@ -19,7 +19,7 @@ import java.time.Duration
 @Configuration
 class BotConfiguration(private val emojiStore: EmojiStore) {
 
-    @Value("#{environment.TOKEN}")
+    @Value("\${TOKEN}")
     private val token: String = ""
 
     private val log = LoggerFactory.getLogger(BotConfiguration::class.java)

@@ -1,6 +1,11 @@
 {
   "properties": [
     {
+      "name": "TOKEN",
+      "type": "java.lang.String",
+      "description": "Description for TOKEN."
+    },
+    {
       "name": "GUILD_ID",
       "type": "java.lang.String",
       "description": "Description for GUILD_ID."
@@ -31,14 +36,14 @@
       "description": "Description for LOGS_REACTIONS_CHANNEL_ID."
     },
     {
-      "name": "TRACKED_CHANNEL_ID_1",
-      "type": "java.lang.String",
-      "description": "Description for TRACKED_CHANNEL_ID_1."
+      "name": "TRACKED_CHANNEL_IDS",
+      "type": "java.util.List",
+      "description": "Description for TRACKED_CHANNEL_IDS."
     },
     {
-      "name": "TRACKED_MESSAGE_ID_1",
-      "type": "java.lang.String",
-      "description": "Description for TRACKED_MESSAGE_ID_1."
+      "name": "TRACKED_MESSAGE_IDS",
+      "type": "java.util.List",
+      "description": "Description for TRACKED_MESSAGE_IDS."
     },
     {
       "name": "MUTED_ROLE_ID",
