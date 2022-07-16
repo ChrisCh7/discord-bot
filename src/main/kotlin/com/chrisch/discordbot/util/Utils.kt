@@ -1,5 +1,6 @@
 package com.chrisch.discordbot.util
 
+import discord4j.common.util.Snowflake
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent
 import discord4j.core.`object`.Embed
 import discord4j.core.`object`.command.ApplicationCommandInteractionOptionValue
@@ -23,6 +24,12 @@ object Utils {
         return "https://discord.com/channels/${
             message.guildId.orElseThrow().asString()
         }/${message.channelId.asString()}/${message.id.asString()}"
+    }
+
+    fun getMessageUrl(guildId: Snowflake, channelId: Snowflake, messageId: Snowflake): String {
+        return "https://discord.com/channels/${
+            guildId.asString()
+        }/${channelId.asString()}/${messageId.asString()}"
     }
 
     fun getReactionEmoji(format: String): ReactionEmoji {
