@@ -24,7 +24,7 @@ class SnipeCacherDelete(private val snipeStore: SnipeStore) : EventListener<Mess
 
             if (message.embeds.first().title.orElse("title") != "Snipe") return Mono.empty()
 
-            if (snipeStore.deletedSnipes.contains(message.id)) {
+            if (snipeStore.deletedSnipes.contains(message.id)) { // if snipe was deleted using removesnipe
                 snipeStore.deletedSnipes.remove(message.id)
                 return Mono.empty()
             }

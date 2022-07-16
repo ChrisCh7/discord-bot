@@ -1,5 +1,6 @@
 package com.chrisch.discordbot.command
 
+import com.chrisch.discordbot.util.SnipeStore
 import discord4j.core.event.domain.interaction.MessageInteractionEvent
 import discord4j.discordjson.json.ApplicationCommandRequest
 import discord4j.rest.util.Permission
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 
 @Service
-class RemoveSnipeContextMenu : CommandHandler<MessageInteractionEvent> {
+class RemoveSnipeContextMenu(private val snipeStore: SnipeStore) : CommandHandler<MessageInteractionEvent> {
 
     override val name: String = "Remove snipe"
 
@@ -37,7 +38,7 @@ class RemoveSnipeContextMenu : CommandHandler<MessageInteractionEvent> {
                 }
 
                 event.deferReply().awaitSingleOrNull()
-                message.embeds.removeLast()
+                snipeStore.deletedSnipes.add(message.id)
                 message.delete().awaitSingleOrNull()
                 event.deleteReply().awaitSingleOrNull()
             }.then()

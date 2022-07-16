@@ -18,7 +18,8 @@ class SnipeCacherDeleteBulk(private val snipeStore: SnipeStore) : EventListener<
 
     override fun execute(event: MessageBulkDeleteEvent): Mono<Void> {
         return mono {
-            for (message in event.messages) {
+            val messages = event.messages.sortedBy { it.id }
+            for (message in messages) {
                 if (message.author.map { it.isBot }
                         .orElse(false) && message.author.orElseThrow().id == event.client.selfId) {
                     if (message.embeds.isEmpty()) continue
@@ -34,7 +35,7 @@ class SnipeCacherDeleteBulk(private val snipeStore: SnipeStore) : EventListener<
                     continue
                 } else if (message.author.map { it.isBot }.orElse(false)) continue
 
-                if (message == event.messages.first()) {
+                if (message == messages.last()) {
                     addToDeletedMessages(message)
                 }
             }
