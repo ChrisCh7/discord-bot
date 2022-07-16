@@ -11,11 +11,6 @@
       "description": "Description for GUILD_ID."
     },
     {
-      "name": "DEVELOPER_ID",
-      "type": "java.lang.String",
-      "description": "Description for DEVELOPER_ID."
-    },
-    {
       "name": "PRISONER_ROLE_ID",
       "type": "java.lang.String",
       "description": "Description for PRISONER_ROLE_ID."

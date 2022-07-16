@@ -1,8 +1,8 @@
 package com.chrisch.discordbot.event
 
+import com.chrisch.discordbot.util.CustomColor
 import discord4j.core.event.domain.message.MessageCreateEvent
 import discord4j.core.spec.EmbedCreateSpec
-import discord4j.rest.util.Color
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import java.time.Duration
@@ -20,7 +20,7 @@ class MessageCreate : EventListener<MessageCreateEvent> {
 
         if (message.content.startsWith("dog~")) {
             val embed = EmbedCreateSpec.builder()
-                .color(Color.GREEN)
+                .color(CustomColor.GREEN)
                 .description("Please use slash `/` commands to interact with the bot.")
                 .footer("This message will self-destruct in 10 sec", null)
                 .build()

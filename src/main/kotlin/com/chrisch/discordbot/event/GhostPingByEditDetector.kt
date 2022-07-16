@@ -1,8 +1,8 @@
 package com.chrisch.discordbot.event
 
+import com.chrisch.discordbot.util.CustomColor
 import discord4j.core.event.domain.message.MessageUpdateEvent
 import discord4j.core.spec.EmbedCreateSpec
-import discord4j.rest.util.Color
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 
@@ -34,7 +34,7 @@ class GhostPingByEditDetector : EventListener<MessageUpdateEvent> {
                             message.roleMentionIds.containsAll(oldMessage.roleMentionIds))
                 }.map { message ->
                     EmbedCreateSpec.builder()
-                        .color(Color.GREEN)
+                        .color(CustomColor.GREEN)
                         .title("Ghost Ping By Edit Detected!")
                         .addField("Author", oldMessage.author.orElseThrow().tag, false)
                         .addField("Old Message", oldMessage.content, false)

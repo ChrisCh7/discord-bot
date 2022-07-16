@@ -1,5 +1,6 @@
 package com.chrisch.discordbot.command
 
+import com.chrisch.discordbot.util.CustomColor
 import com.chrisch.discordbot.util.SnipeStore
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent
 import discord4j.core.`object`.command.ApplicationCommandOption
@@ -8,7 +9,6 @@ import discord4j.core.spec.InteractionApplicationCommandCallbackSpec
 import discord4j.discordjson.json.ApplicationCommandOptionChoiceData
 import discord4j.discordjson.json.ApplicationCommandOptionData
 import discord4j.discordjson.json.ApplicationCommandRequest
-import discord4j.rest.util.Color
 import discord4j.rest.util.Permission
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
@@ -69,7 +69,7 @@ class Snipe(private val snipeStore: SnipeStore) : CommandHandler<ChatInputIntera
             val lastDeletedMessageInChannel = deletedMessagesInChannel[deletedMessagesInChannel.size - nth]
 
             val embed = EmbedCreateSpec.builder()
-                .color(Color.GREEN)
+                .color(CustomColor.GREEN)
                 .title("Snipe")
                 .addField("Author", lastDeletedMessageInChannel.author, false)
                 .apply {

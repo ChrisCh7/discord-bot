@@ -1,5 +1,6 @@
 package com.chrisch.discordbot.command
 
+import com.chrisch.discordbot.util.CustomColor
 import com.chrisch.discordbot.util.Utils.getOptionValue
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent
 import discord4j.core.`object`.command.ApplicationCommandOption
@@ -8,7 +9,6 @@ import discord4j.core.spec.InteractionApplicationCommandCallbackSpec
 import discord4j.discordjson.json.ApplicationCommandOptionChoiceData
 import discord4j.discordjson.json.ApplicationCommandOptionData
 import discord4j.discordjson.json.ApplicationCommandRequest
-import discord4j.rest.util.Color
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 
@@ -33,7 +33,7 @@ class Rule : CommandHandler<ChatInputInteractionEvent> {
 
     override fun handle(event: ChatInputInteractionEvent): Mono<Void> {
         val embed = EmbedCreateSpec.builder()
-            .color(Color.GREEN)
+            .color(CustomColor.GREEN)
             .title("Rule ${getOptionValue(event, "rule_number").asLong()}")
             .description("${rules[getOptionValue(event, "rule_number").asLong().toInt() - 1]}\n\n<#745246003275497543>")
             .build()

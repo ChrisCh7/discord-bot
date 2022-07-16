@@ -1,10 +1,10 @@
 package com.chrisch.discordbot.event
 
+import com.chrisch.discordbot.util.CustomColor
 import com.chrisch.discordbot.util.Utils.getMessageUrl
 import discord4j.core.event.domain.message.MessageDeleteEvent
 import discord4j.core.`object`.entity.Message
 import discord4j.core.spec.EmbedCreateSpec
-import discord4j.rest.util.Color
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 
@@ -41,7 +41,7 @@ class GhostPingDetector : EventListener<MessageDeleteEvent> {
         }
 
         val embed = EmbedCreateSpec.builder()
-            .color(Color.GREEN)
+            .color(CustomColor.GREEN)
             .title("Ghost Ping Detected!")
             .apply {
                 if (repliedToUserTag != null) {

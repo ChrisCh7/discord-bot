@@ -3,8 +3,8 @@ package com.chrisch.discordbot.command
 import com.chrisch.discordbot.util.Utils.getCodeBlock
 import com.chrisch.discordbot.util.Utils.getOptionValue
 import discord4j.common.util.Snowflake
-import discord4j.core.`object`.command.ApplicationCommandOption
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent
+import discord4j.core.`object`.command.ApplicationCommandOption
 import discord4j.discordjson.json.ApplicationCommandOptionData
 import discord4j.discordjson.json.ApplicationCommandRequest
 import org.springframework.stereotype.Service

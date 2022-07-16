@@ -2,8 +2,8 @@ package com.chrisch.discordbot.event
 
 import com.chrisch.discordbot.util.Utils.getMessageUrl
 import discord4j.common.util.Snowflake
-import discord4j.core.`object`.entity.channel.TopLevelGuildMessageChannel
 import discord4j.core.event.domain.message.MessageCreateEvent
+import discord4j.core.`object`.entity.channel.TopLevelGuildMessageChannel
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import kotlinx.coroutines.reactor.mono

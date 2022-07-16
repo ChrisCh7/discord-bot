@@ -1,8 +1,8 @@
 package com.chrisch.discordbot.event
 
 import com.chrisch.discordbot.util.EmojiStore
-import discord4j.core.`object`.entity.channel.TopLevelGuildMessageChannel
 import discord4j.core.event.domain.message.MessageCreateEvent
+import discord4j.core.`object`.entity.channel.TopLevelGuildMessageChannel
 import discord4j.core.spec.WebhookExecuteSpec
 import discord4j.discordjson.possible.Possible
 import discord4j.rest.util.Image

@@ -1,5 +1,6 @@
 package com.chrisch.discordbot.command
 
+import com.chrisch.discordbot.util.CustomColor
 import com.chrisch.discordbot.util.EmojiStore
 import com.chrisch.discordbot.util.Utils.getOptionValue
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent
@@ -11,7 +12,6 @@ import discord4j.core.spec.WebhookExecuteSpec
 import discord4j.discordjson.json.ApplicationCommandOptionData
 import discord4j.discordjson.json.ApplicationCommandRequest
 import discord4j.discordjson.possible.Possible
-import discord4j.rest.util.Color
 import discord4j.rest.util.Image
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
@@ -45,7 +45,7 @@ class Emoji(private val emojiStore: EmojiStore) : CommandHandler<ChatInputIntera
 
         if (emojiName.equals("all", true)) {
             val embed = EmbedCreateSpec.builder()
-                .color(Color.GREEN)
+                .color(CustomColor.GREEN)
                 .title("${emojiStore.emojis.size} emojis")
                 .description(emojiStore.emojis.values.joinToString(""))
                 .build()
