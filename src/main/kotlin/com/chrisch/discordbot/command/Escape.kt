@@ -30,7 +30,9 @@ class Escape : CommandHandler<ChatInputInteractionEvent> {
             .build()
 
     override fun handle(event: ChatInputInteractionEvent): Mono<Void> {
-        if (event.interaction.member.isEmpty) return Mono.empty()
+        if (event.interaction.member.isEmpty) {
+            return event.reply("Command only usable in a guild").withEphemeral(true)
+        }
 
         val member = event.interaction.member.orElseThrow()
         val userId = event.interaction.user.id

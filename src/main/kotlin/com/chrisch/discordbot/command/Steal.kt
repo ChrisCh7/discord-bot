@@ -42,7 +42,9 @@ class Steal : CommandHandler<ChatInputInteractionEvent> {
             ).build()
 
     override fun handle(event: ChatInputInteractionEvent): Mono<Void> {
-        if (event.interaction.member.isEmpty) return Mono.empty()
+        if (event.interaction.member.isEmpty) {
+            return event.reply("Command only usable in a guild").withEphemeral(true)
+        }
 
         return mono {
             if (!event.interaction.member.orElseThrow().basePermissions.awaitSingle()
