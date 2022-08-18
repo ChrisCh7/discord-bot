@@ -9,8 +9,8 @@ import discord4j.core.spec.InteractionApplicationCommandCallbackSpec
 import discord4j.discordjson.json.ApplicationCommandOptionChoiceData
 import discord4j.discordjson.json.ApplicationCommandOptionData
 import discord4j.discordjson.json.ApplicationCommandRequest
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Mono
 
 @Service
 class Rule : CommandHandler<ChatInputInteractionEvent> {
@@ -31,14 +31,14 @@ class Rule : CommandHandler<ChatInputInteractionEvent> {
                     .build()
             ).build()
 
-    override fun handle(event: ChatInputInteractionEvent): Mono<Void> {
+    override suspend fun handle(event: ChatInputInteractionEvent) {
         val embed = EmbedCreateSpec.builder()
             .color(CustomColor.GREEN)
             .title("Rule ${getOptionValue(event, "rule_number").asLong()}")
             .description("${rules[getOptionValue(event, "rule_number").asLong().toInt() - 1]}\n\n<#745246003275497543>")
             .build()
 
-        return event.reply(InteractionApplicationCommandCallbackSpec.builder().addEmbed(embed).build())
+        event.reply(InteractionApplicationCommandCallbackSpec.builder().addEmbed(embed).build()).awaitSingleOrNull()
     }
 
     fun getRuleChoices(): List<ApplicationCommandOptionChoiceData> {

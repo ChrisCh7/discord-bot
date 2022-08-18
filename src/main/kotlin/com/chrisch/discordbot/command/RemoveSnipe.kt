@@ -10,9 +10,7 @@ import discord4j.discordjson.json.ApplicationCommandRequest
 import discord4j.rest.util.Permission
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
-import kotlinx.coroutines.reactor.mono
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Mono
 
 @Service
 class RemoveSnipe(private val snipeStore: SnipeStore) : CommandHandler<ChatInputInteractionEvent> {
@@ -32,29 +30,28 @@ class RemoveSnipe(private val snipeStore: SnipeStore) : CommandHandler<ChatInput
                     .build()
             ).build()
 
-    override fun handle(event: ChatInputInteractionEvent): Mono<Void> {
+    override suspend fun handle(event: ChatInputInteractionEvent) {
         if (event.interaction.member.isEmpty) {
-            return event.reply("Command only usable in a guild").withEphemeral(true)
+            event.reply("Command only usable in a guild").withEphemeral(true).awaitSingleOrNull()
+            return
         }
 
-        return mono {
-            if (!event.interaction.member.orElseThrow().basePermissions.awaitSingle()
-                    .contains(Permission.ADMINISTRATOR)
-            ) {
-                event.reply("You don't have permission to use this command.").withEphemeral(true)
-                    .awaitSingleOrNull()
-                return@mono
-            }
+        if (!event.interaction.member.orElseThrow().basePermissions.awaitSingle()
+                .contains(Permission.ADMINISTRATOR)
+        ) {
+            event.reply("You don't have permission to use this command.").withEphemeral(true)
+                .awaitSingleOrNull()
+            return
+        }
 
-            val snipeMsg = event.interaction.channel.awaitSingle()
-                .getMessageById(Snowflake.of(Utils.getOptionValue(event, "snipe_id").asString())).awaitSingle()
+        val snipeMsg = event.interaction.channel.awaitSingle()
+            .getMessageById(Snowflake.of(Utils.getOptionValue(event, "snipe_id").asString())).awaitSingle()
 
-            event.deferReply().awaitSingleOrNull()
+        event.deferReply().awaitSingleOrNull()
 
-            snipeStore.deletedSnipes.add(snipeMsg.id)
+        snipeStore.deletedSnipes.add(snipeMsg.id)
 
-            snipeMsg.delete().awaitSingleOrNull()
-            event.deleteReply().awaitSingleOrNull()
-        }.then()
+        snipeMsg.delete().awaitSingleOrNull()
+        event.deleteReply().awaitSingleOrNull()
     }
 }

@@ -3,6 +3,7 @@ package com.chrisch.discordbot.autocomplete
 import discord4j.core.GatewayDiscordClient
 import discord4j.core.event.domain.interaction.AutoCompleteInteractionEvent
 import discord4j.core.event.domain.interaction.ChatInputAutoCompleteEvent
+import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
@@ -25,7 +26,7 @@ class AutocompleteListener(
         return Flux.fromIterable(handlers)
             .filter { it.name == event.commandName }
             .next()
-            .flatMap { it.handle(event) }
+            .flatMap { mono { it.handle(event) }.then() }
     }
 
     private fun logAutocompleteError(throwable: Throwable): Mono<Void> {

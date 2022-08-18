@@ -3,19 +3,19 @@ package com.chrisch.discordbot.event
 import com.chrisch.discordbot.util.CustomColor
 import discord4j.core.event.domain.message.MessageCreateEvent
 import discord4j.core.spec.EmbedCreateSpec
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Mono
 import java.time.Duration
 
 @Service
 class MessageCreate : EventListener<MessageCreateEvent> {
     override val eventType: Class<MessageCreateEvent> = MessageCreateEvent::class.java
 
-    override fun execute(event: MessageCreateEvent): Mono<Void> {
+    override suspend fun execute(event: MessageCreateEvent) {
         val message = event.message
 
         if (message.author.map { it.isBot }.orElse(true)) {
-            return Mono.empty()
+            return
         }
 
         if (message.content.startsWith("dog~")) {
@@ -25,12 +25,10 @@ class MessageCreate : EventListener<MessageCreateEvent> {
                 .footer("This message will self-destruct in 10 sec", null)
                 .build()
 
-            return message.channel
+            message.channel
                 .flatMap { channel -> channel.createMessage(embed).withMessageReference(message.id) }
                 .delayElement(Duration.ofSeconds(10))
-                .flatMap { it.delete() }
+                .flatMap { it.delete() }.awaitSingleOrNull()
         }
-
-        return Mono.empty()
     }
 }

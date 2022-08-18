@@ -15,7 +15,6 @@ import discord4j.discordjson.possible.Possible
 import discord4j.rest.util.Image
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
-import kotlinx.coroutines.reactor.mono
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import java.time.Duration
@@ -40,7 +39,7 @@ class Emoji(private val emojiStore: EmojiStore) : CommandHandler<ChatInputIntera
                     .build()
             ).build()
 
-    override fun handle(event: ChatInputInteractionEvent): Mono<Void> {
+    override suspend fun handle(event: ChatInputInteractionEvent) {
         val emojiName = getOptionValue(event, "name").asString()
 
         if (emojiName.equals("all", true)) {
@@ -50,51 +49,52 @@ class Emoji(private val emojiStore: EmojiStore) : CommandHandler<ChatInputIntera
                 .description(emojiStore.emojis.values.joinToString(""))
                 .build()
 
-            return event.reply(InteractionApplicationCommandCallbackSpec.builder().addEmbed(embed).build())
+            event.reply(InteractionApplicationCommandCallbackSpec.builder().addEmbed(embed).build()).awaitSingleOrNull()
+            return
         }
 
         val emojiMatches = getEmojiMatches(emojiName)
 
         if (emojiMatches.isEmpty()) {
-            return event.reply("Emoji not found!")
+            event.reply("Emoji not found!")
                 .delayElement(Duration.ofSeconds(2))
-                .then(event.deleteReply())
+                .then(event.deleteReply()).awaitSingleOrNull()
+            return
         }
 
         if (emojiMatches.size > 1) {
-            return event.reply(
+            event.reply(
                 "Emoji not found.\n" +
                         "Did you mean: ${emojiMatches.keys.joinToString(", ")}"
             ).then(Mono.just(1)).delayElement(Duration.ofSeconds(10))
-                .then(event.deleteReply())
+                .then(event.deleteReply()).awaitSingleOrNull()
+            return
         }
 
         val emoji = emojiMatches.entries.first().value
 
-        return mono {
-            val channel = event.interaction.channel.awaitSingle()
-            val member = event.interaction.member.orElseThrow()
+        val channel = event.interaction.channel.awaitSingle()
+        val member = event.interaction.member.orElseThrow()
 
-            event.deferReply().awaitSingleOrNull()
-            event.deleteReply().awaitSingleOrNull()
+        event.deferReply().awaitSingleOrNull()
+        event.deleteReply().awaitSingleOrNull()
 
-            if (channel is TopLevelGuildMessageChannel) {
-                val webhook = channel.createWebhook(member.displayName)
-                    .withAvatar(
-                        Possible.of(
-                            Optional.of(
-                                Image.ofUrl(member.avatarUrl).awaitSingle()
-                            )
+        if (channel is TopLevelGuildMessageChannel) {
+            val webhook = channel.createWebhook(member.displayName)
+                .withAvatar(
+                    Possible.of(
+                        Optional.of(
+                            Image.ofUrl(member.avatarUrl).awaitSingle()
                         )
                     )
-                    .withReason("${member.tag} posted an emoji")
-                    .awaitSingle()
+                )
+                .withReason("${member.tag} posted an emoji")
+                .awaitSingle()
 
-                webhook.executeAndWait(WebhookExecuteSpec.builder().content(emoji).build())
-                    .onErrorResume { Mono.empty() }.awaitSingleOrNull()
-                webhook.delete().awaitSingleOrNull()
-            }
-        }.then()
+            webhook.executeAndWait(WebhookExecuteSpec.builder().content(emoji).build())
+                .onErrorResume { Mono.empty() }.awaitSingleOrNull()
+            webhook.delete().awaitSingleOrNull()
+        }
     }
 
     private fun getEmojiMatches(name: String): Map<String, String> {

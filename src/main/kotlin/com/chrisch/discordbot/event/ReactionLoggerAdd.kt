@@ -5,9 +5,9 @@ import com.chrisch.discordbot.util.Utils.getMessageUrl
 import discord4j.common.util.Snowflake
 import discord4j.core.event.domain.message.ReactionAddEvent
 import discord4j.core.`object`.entity.channel.TopLevelGuildMessageChannel
+import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Mono
 
 @Service
 class ReactionLoggerAdd : EventListener<ReactionAddEvent> {
@@ -23,24 +23,24 @@ class ReactionLoggerAdd : EventListener<ReactionAddEvent> {
 
     override val eventType: Class<ReactionAddEvent> = ReactionAddEvent::class.java
 
-    override fun execute(event: ReactionAddEvent): Mono<Void> {
-        if (event.member.isEmpty) return Mono.empty()
+    override suspend fun execute(event: ReactionAddEvent) {
+        if (event.member.isEmpty) return
 
         if ((trackedMessageIds.isEmpty() && trackedChannelIds.isEmpty()) || logsReactionsChannelId.isBlank()) {
-            return Mono.empty()
+            return
         }
 
         if (event.member.map { it.isBot }.orElse(true)) {
-            return Mono.empty()
+            return
         }
 
         if (!trackedMessageIds.contains(event.messageId.asString()) &&
             !trackedChannelIds.contains(event.channelId.asString())
         ) {
-            return Mono.empty()
+            return
         }
 
-        return event.guild
+        event.guild
             .flatMap { it.getChannelById(Snowflake.of(logsReactionsChannelId)) }
             .ofType(TopLevelGuildMessageChannel::class.java)
             .flatMap {
@@ -50,6 +50,6 @@ class ReactionLoggerAdd : EventListener<ReactionAddEvent> {
                             getMessageUrl(event.guildId.orElseThrow(), event.channelId, event.messageId)
                 )
             }
-            .then()
+            .awaitSingle()
     }
 }

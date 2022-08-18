@@ -2,7 +2,6 @@ package com.chrisch.discordbot.command
 
 import discord4j.core.event.domain.interaction.ApplicationCommandInteractionEvent
 import discord4j.discordjson.json.ApplicationCommandRequest
-import reactor.core.publisher.Mono
 
 interface CommandHandler<T : ApplicationCommandInteractionEvent> {
 
@@ -10,5 +9,5 @@ interface CommandHandler<T : ApplicationCommandInteractionEvent> {
 
     val command: ApplicationCommandRequest
 
-    fun handle(event: T): Mono<Void>
+    suspend fun handle(event: T)
 }

@@ -5,7 +5,6 @@ import discord4j.core.event.domain.message.MessageCreateEvent
 import discord4j.core.`object`.entity.channel.TopLevelGuildMessageChannel
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
-import kotlinx.coroutines.reactor.mono
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
@@ -34,11 +33,11 @@ class AntiMultiChannelSpam : EventListener<MessageCreateEvent> {
 
     override val eventType: Class<MessageCreateEvent> = MessageCreateEvent::class.java
 
-    override fun execute(event: MessageCreateEvent): Mono<Void> {
+    override suspend fun execute(event: MessageCreateEvent) {
         val message = event.message
 
         if (message.author.map { it.isBot }.orElse(true) || message.guildId.isEmpty) {
-            return Mono.empty()
+            return
         }
 
         val authorId = message.author.orElseThrow().id
@@ -55,56 +54,52 @@ class AntiMultiChannelSpam : EventListener<MessageCreateEvent> {
         )
 
         if (userMessages[authorId]!!.size < THRESHOLD) {
-            return Mono.empty()
+            return
         }
 
         val distinctMessages = userMessages[authorId]!!.stream().map { it.message }.distinct().toList()
         val distinctChannels = userMessages[authorId]!!.stream().map { it.channelId }.distinct().toList()
 
-        return mono {
-            mono {
-                if (distinctMessages.size == 1 && distinctChannels.size == THRESHOLD &&
-                    userMessages[authorId]!![4].timestamp.epochSecond - userMessages[authorId]!![0].timestamp.epochSecond <= THRESHOLD * 2
-                ) {
-                    val authorMember = message.authorAsMember.awaitSingle()
-                    val guild = message.guild.awaitSingle()
+        if (distinctMessages.size == 1 && distinctChannels.size == THRESHOLD &&
+            userMessages[authorId]!![4].timestamp.epochSecond - userMessages[authorId]!![0].timestamp.epochSecond <= THRESHOLD * 2
+        ) {
+            val authorMember = message.authorAsMember.awaitSingle()
+            val guild = message.guild.awaitSingle()
 
-                    if (!authorMember.roleIds.contains(Snowflake.of(mutedRoleId))) {
-                        authorMember.addRole(Snowflake.of(mutedRoleId), "multi-channel spam").awaitSingleOrNull()
-                    }
+            if (!authorMember.roleIds.contains(Snowflake.of(mutedRoleId))) {
+                authorMember.addRole(Snowflake.of(mutedRoleId), "multi-channel spam").awaitSingleOrNull()
+            }
 
-                    val purgeAlreadyStarted =
-                        userMessages[authorId]!!.stream().filter { it.deleted }.toList().isNotEmpty()
+            val purgeAlreadyStarted =
+                userMessages[authorId]!!.stream().filter { it.deleted }.toList().isNotEmpty()
 
-                    userMessages[authorId]!!.forEach { userMessage ->
-                        if (!userMessage.deleted) {
-                            guild.getChannelById(userMessage.channelId)
-                                .ofType(TopLevelGuildMessageChannel::class.java)
-                                .flatMap { it.getMessageById(userMessage.messageId) }
-                                .flatMap { it.delete() }
-                                .onErrorResume { Mono.empty() }.awaitSingleOrNull()
-                            userMessage.deleted = true
-                        }
-                    }
-
-                    if (!purgeAlreadyStarted) {
-                        guild.getChannelById(Snowflake.of(reportChannelId))
-                            .ofType(TopLevelGuildMessageChannel::class.java)
-                            .flatMap {
-                                it.createMessage(
-                                    "User: ${message.author.orElseThrow().tag} (${message.author.orElseThrow().id.asString()})\n" +
-                                            "Reason: multi-channel spam\n" +
-                                            "Proof:\n" +
-                                            "```\n${message.content}\n```" +
-                                            "Action took: muted"
-                                )
-                            }.onErrorResume { Mono.empty() }.awaitSingleOrNull()
-                    }
+            userMessages[authorId]!!.forEach { userMessage ->
+                if (!userMessage.deleted) {
+                    guild.getChannelById(userMessage.channelId)
+                        .ofType(TopLevelGuildMessageChannel::class.java)
+                        .flatMap { it.getMessageById(userMessage.messageId) }
+                        .flatMap { it.delete() }
+                        .onErrorResume { Mono.empty() }.awaitSingleOrNull()
+                    userMessage.deleted = true
                 }
-            }.awaitSingleOrNull()
+            }
 
-            userMessages[authorId]!!.removeFirst()
-        }.then()
+            if (!purgeAlreadyStarted) {
+                guild.getChannelById(Snowflake.of(reportChannelId))
+                    .ofType(TopLevelGuildMessageChannel::class.java)
+                    .flatMap {
+                        it.createMessage(
+                            "User: ${message.author.orElseThrow().tag} (${message.author.orElseThrow().id.asString()})\n" +
+                                    "Reason: multi-channel spam\n" +
+                                    "Proof:\n" +
+                                    "```\n${message.content}\n```" +
+                                    "Action took: muted"
+                        )
+                    }.onErrorResume { Mono.empty() }.awaitSingleOrNull()
+            }
+        }
+
+        userMessages[authorId]!!.removeFirst()
     }
 
     companion object {

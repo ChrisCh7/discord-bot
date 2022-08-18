@@ -6,9 +6,7 @@ import discord4j.common.util.Snowflake
 import discord4j.core.event.domain.message.MessageBulkDeleteEvent
 import discord4j.core.`object`.entity.Message
 import kotlinx.coroutines.reactor.awaitSingle
-import kotlinx.coroutines.reactor.mono
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Mono
 import java.time.Instant
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -16,30 +14,28 @@ import java.util.concurrent.CopyOnWriteArrayList
 class SnipeCacherDeleteBulk(private val snipeStore: SnipeStore) : EventListener<MessageBulkDeleteEvent> {
     override val eventType: Class<MessageBulkDeleteEvent> = MessageBulkDeleteEvent::class.java
 
-    override fun execute(event: MessageBulkDeleteEvent): Mono<Void> {
-        return mono {
-            val messages = event.messages.sortedBy { it.id }
-            for (message in messages) {
-                if (message.author.map { it.isBot }
-                        .orElse(false) && message.author.orElseThrow().id == event.client.selfId) {
-                    if (message.embeds.isEmpty()) continue
+    override suspend fun execute(event: MessageBulkDeleteEvent) {
+        val messages = event.messages.sortedBy { it.id }
+        for (message in messages) {
+            if (message.author.map { it.isBot }
+                    .orElse(false) && message.author.orElseThrow().id == event.client.selfId) {
+                if (message.embeds.isEmpty()) continue
 
-                    if (message.embeds.first().title.orElse("title") != "Snipe") continue
+                if (message.embeds.first().title.orElse("title") != "Snipe") continue
 
-                    message.channel
-                        .flatMap {
-                            it.createMessage("resending snipe because it was deleted by a mod:")
-                                .withEmbeds(getEmbedCreateSpecFromEmbed(message.embeds.first()))
-                        }.awaitSingle()
+                message.channel
+                    .flatMap {
+                        it.createMessage("resending snipe because it was deleted by a mod:")
+                            .withEmbeds(getEmbedCreateSpecFromEmbed(message.embeds.first()))
+                    }.awaitSingle()
 
-                    continue
-                } else if (message.author.map { it.isBot }.orElse(false)) continue
+                continue
+            } else if (message.author.map { it.isBot }.orElse(false)) continue
 
-                if (message == messages.last()) {
-                    addToDeletedMessages(message)
-                }
+            if (message == messages.last()) {
+                addToDeletedMessages(message)
             }
-        }.then()
+        }
     }
 
     private fun addToDeletedMessages(message: Message) {

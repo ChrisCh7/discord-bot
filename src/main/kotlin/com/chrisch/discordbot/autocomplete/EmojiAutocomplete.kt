@@ -3,16 +3,16 @@ package com.chrisch.discordbot.autocomplete
 import com.chrisch.discordbot.util.EmojiStore
 import discord4j.core.event.domain.interaction.ChatInputAutoCompleteEvent
 import discord4j.discordjson.json.ApplicationCommandOptionChoiceData
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Mono
 
 @Service
 class EmojiAutocomplete(private val emojiStore: EmojiStore) : AutocompleteHandler<ChatInputAutoCompleteEvent> {
     override val name: String = "emoji"
 
-    override fun handle(event: ChatInputAutoCompleteEvent): Mono<Void> {
+    override suspend fun handle(event: ChatInputAutoCompleteEvent) {
         val currentlyTypedOption = event.focusedOption.value.orElseThrow().asString()
-        return event.respondWithSuggestions(getEmojiAutocompleteOptions(currentlyTypedOption))
+        event.respondWithSuggestions(getEmojiAutocompleteOptions(currentlyTypedOption)).awaitSingleOrNull()
     }
 
     private fun getEmojiAutocompleteOptions(name: String): List<ApplicationCommandOptionChoiceData> {

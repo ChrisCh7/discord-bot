@@ -3,6 +3,7 @@ package com.chrisch.discordbot.command
 import discord4j.common.util.Snowflake
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent
 import discord4j.discordjson.json.ApplicationCommandRequest
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -29,16 +30,19 @@ class Escape : CommandHandler<ChatInputInteractionEvent> {
             .description("Have a chance to escape from gulag.")
             .build()
 
-    override fun handle(event: ChatInputInteractionEvent): Mono<Void> {
+    override suspend fun handle(event: ChatInputInteractionEvent) {
         if (event.interaction.member.isEmpty) {
-            return event.reply("Command only usable in a guild").withEphemeral(true)
+            event.reply("Command only usable in a guild").withEphemeral(true).awaitSingleOrNull()
+            return
         }
 
         val member = event.interaction.member.orElseThrow()
         val userId = event.interaction.user.id
 
         if (!member.roleIds.contains(Snowflake.of(prisonerRoleId))) {
-            return event.reply("You must be a prisoner to use this command.").withEphemeral(true)
+            event.reply("You must be a prisoner to use this command.").withEphemeral(true)
+                .awaitSingleOrNull()
+            return
         }
 
         val now = Instant.now()
@@ -46,14 +50,16 @@ class Escape : CommandHandler<ChatInputInteractionEvent> {
         if (escapeAttempts.containsKey(userId)) {
             val elapsedTime = now.epochSecond - escapeAttempts[userId]!!.epochSecond
             if (elapsedTime < escapeCooldownSeconds) {
-                return event.reply("Please try again <t:${now.epochSecond + (escapeCooldownSeconds - elapsedTime)}:R>")
+                event.reply("Please try again <t:${now.epochSecond + (escapeCooldownSeconds - elapsedTime)}:R>")
+                    .awaitSingleOrNull()
+                return
             }
         }
 
         escapeAttempts[userId] = now
 
         if (0 == (0..(100 / percentageChanceOfEscaping)).random()) {
-            return event.reply(
+            event.reply(
                 "Congratulations! You managed to escape.\n" +
                         "Mods: Please use `?gulag ${userId.asString()}` to make Dyno aware of this."
             ).then(Mono.just(1))
@@ -61,9 +67,11 @@ class Escape : CommandHandler<ChatInputInteractionEvent> {
                 .then(member.removeRole(Snowflake.of(prisonerRoleId), "Escaped from gulag"))
                 .doOnError { log.error("Error removing prisoner role", it) }
                 .onErrorResume { event.createFollowup("There was an error removing the prisoner role.").then() }
+                .awaitSingleOrNull()
+            return
         }
 
-        return event.reply("Oh no! You failed to escape.")
+        event.reply("Oh no! You failed to escape.").awaitSingleOrNull()
     }
 
     companion object {

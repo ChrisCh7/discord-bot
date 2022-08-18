@@ -9,7 +9,7 @@ interface EventListener<T : Event> {
 
     val eventType: Class<T>
 
-    fun execute(event: T): Mono<Void>
+    suspend fun execute(event: T)
 
     fun handleError(error: Throwable): Mono<Void> {
         log.error("Unable to process ${eventType.simpleName}", error)

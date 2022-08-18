@@ -5,8 +5,8 @@ import com.chrisch.discordbot.util.Utils.getEmbedCreateSpecFromEmbed
 import discord4j.common.util.Snowflake
 import discord4j.core.event.domain.message.MessageDeleteEvent
 import discord4j.core.`object`.entity.Message
+import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Mono
 import java.time.Instant
 import java.util.concurrent.CopyOnWriteArrayList
 
@@ -14,34 +14,33 @@ import java.util.concurrent.CopyOnWriteArrayList
 class SnipeCacherDelete(private val snipeStore: SnipeStore) : EventListener<MessageDeleteEvent> {
     override val eventType: Class<MessageDeleteEvent> = MessageDeleteEvent::class.java
 
-    override fun execute(event: MessageDeleteEvent): Mono<Void> {
-        if (event.message.isEmpty) return Mono.empty()
+    override suspend fun execute(event: MessageDeleteEvent) {
+        if (event.message.isEmpty) return
 
         val message = event.message.orElseThrow()
 
         if (message.author.map { it.isBot }.orElse(false) && message.author.orElseThrow().id == event.client.selfId) {
-            if (message.embeds.isEmpty()) return Mono.empty()
+            if (message.embeds.isEmpty()) return
 
-            if (message.embeds.first().title.orElse("title") != "Snipe") return Mono.empty()
+            if (message.embeds.first().title.orElse("title") != "Snipe") return
 
             if (snipeStore.deletedSnipes.contains(message.id)) { // if snipe was deleted using removesnipe
                 snipeStore.deletedSnipes.remove(message.id)
-                return Mono.empty()
+                return
             }
 
-            return message.channel
+            message.channel
                 .flatMap {
                     it.createMessage("resending snipe because it was deleted by a mod:")
                         .withEmbeds(getEmbedCreateSpecFromEmbed(message.embeds.first()))
                 }
-                .then()
-        } else if (message.author.map { it.isBot }.orElse(false)) return Mono.empty()
+                .awaitSingle()
+            return
+        } else if (message.author.map { it.isBot }.orElse(false)) return
 
-        if (message.content.startsWith("?purge")) return Mono.empty()
+        if (message.content.startsWith("?purge")) return
 
         addToDeletedMessages(message)
-
-        return Mono.empty()
     }
 
     private fun addToDeletedMessages(message: Message) {

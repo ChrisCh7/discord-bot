@@ -7,8 +7,8 @@ import discord4j.core.event.domain.interaction.ChatInputInteractionEvent
 import discord4j.core.`object`.command.ApplicationCommandOption
 import discord4j.discordjson.json.ApplicationCommandOptionData
 import discord4j.discordjson.json.ApplicationCommandRequest
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Mono
 
 @Service
 class CodeFormat : CommandHandler<ChatInputInteractionEvent> {
@@ -35,8 +35,8 @@ class CodeFormat : CommandHandler<ChatInputInteractionEvent> {
                     .build()
             ).build()
 
-    override fun handle(event: ChatInputInteractionEvent): Mono<Void> {
-        return event.interaction.channel
+    override suspend fun handle(event: ChatInputInteractionEvent) {
+        event.interaction.channel
             .flatMap { it.getMessageById(Snowflake.of(getOptionValue(event, "message_id").asString())) }
             .flatMap { message ->
                 event.reply(
@@ -45,6 +45,6 @@ class CodeFormat : CommandHandler<ChatInputInteractionEvent> {
                         message.content
                     )
                 )
-            }
+            }.awaitSingleOrNull()
     }
 }

@@ -5,6 +5,7 @@ import discord4j.core.event.domain.interaction.ApplicationCommandInteractionEven
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent
 import discord4j.core.event.domain.interaction.MessageInteractionEvent
 import discord4j.core.event.domain.interaction.UserInteractionEvent
+import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
@@ -31,7 +32,7 @@ class CommandListener(
         return Flux.fromIterable(handlers)
             .filter { it.name == event.commandName }
             .next()
-            .flatMap { it.handle(event) }
+            .flatMap { mono { it.handle(event) }.then() }
     }
 
     private fun logCommandError(throwable: Throwable): Mono<Void> {

@@ -5,31 +5,31 @@ import com.chrisch.discordbot.util.Utils.getMessageUrl
 import discord4j.core.event.domain.message.MessageDeleteEvent
 import discord4j.core.`object`.entity.Message
 import discord4j.core.spec.EmbedCreateSpec
+import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Mono
 
 @Service
 class GhostPingDetector : EventListener<MessageDeleteEvent> {
     override val eventType: Class<MessageDeleteEvent> = MessageDeleteEvent::class.java
 
-    override fun execute(event: MessageDeleteEvent): Mono<Void> {
-        if (event.message.isEmpty) return Mono.empty()
+    override suspend fun execute(event: MessageDeleteEvent) {
+        if (event.message.isEmpty) return
 
         val message = event.message.orElseThrow()
 
         if (message.author.map { it.isBot }.orElse(true)) {
-            return Mono.empty()
+            return
         }
 
         if (message.userMentionIds.isEmpty() && message.roleMentionIds.isEmpty()) {
-            return Mono.empty()
+            return
         }
 
         if (message.userMentions.stream().allMatch { user ->
                 user.id == message.author.orElseThrow().id || user.isBot
             }
         ) {
-            return Mono.empty()
+            return
         }
 
         var repliedToMessage: Message? = null
@@ -59,8 +59,8 @@ class GhostPingDetector : EventListener<MessageDeleteEvent> {
             }
             .build()
 
-        return event.channel
+        event.channel
             .flatMap { it.createMessage(embed) }
-            .then()
+            .awaitSingle()
     }
 }

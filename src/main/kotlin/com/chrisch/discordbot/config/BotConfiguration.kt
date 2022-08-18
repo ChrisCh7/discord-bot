@@ -9,6 +9,7 @@ import discord4j.core.event.domain.Event
 import discord4j.gateway.intent.Intent
 import discord4j.gateway.intent.IntentSet
 import discord4j.rest.RestClient
+import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -52,7 +53,7 @@ class BotConfiguration(private val emojiStore: EmojiStore) {
         return Flux.merge(eventListeners.stream()
             .map { listener ->
                 eventDispatcher.on(listener.eventType)
-                    .flatMap(listener::execute)
+                    .flatMap { mono { listener.execute(it) }.then() }
                     .onErrorResume(listener::handleError)
             }
             .toList()
