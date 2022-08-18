@@ -1,5 +1,6 @@
 package com.chrisch.discordbot.event
 
+import com.chrisch.discordbot.util.Utils.getEmojiFormat
 import com.chrisch.discordbot.util.Utils.getMessageUrl
 import discord4j.common.util.Snowflake
 import discord4j.core.event.domain.message.ReactionRemoveEvent
@@ -50,7 +51,7 @@ class ReactionLoggerRemove : EventListener<ReactionRemoveEvent> {
                 .flatMap {
                     it.createMessage(
                         "${user.tag}'s reaction was removed: " +
-                                "${event.emoji.asCustomEmoji().orElseThrow().asFormat()} from message:\n" +
+                                "${getEmojiFormat(event.emoji)} from message:\n" +
                                 getMessageUrl(event.guildId.orElseThrow(), event.channelId, event.messageId)
                     )
                 }.awaitSingle()

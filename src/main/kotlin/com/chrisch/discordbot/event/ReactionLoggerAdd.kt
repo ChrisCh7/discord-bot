@@ -1,5 +1,6 @@
 package com.chrisch.discordbot.event
 
+import com.chrisch.discordbot.util.Utils.getEmojiFormat
 import com.chrisch.discordbot.util.Utils.getMessageUrl
 import discord4j.common.util.Snowflake
 import discord4j.core.event.domain.message.ReactionAddEvent
@@ -45,7 +46,7 @@ class ReactionLoggerAdd : EventListener<ReactionAddEvent> {
             .flatMap {
                 it.createMessage(
                     "${event.member.orElseThrow().tag} added reaction: " +
-                            "${event.emoji.asCustomEmoji().orElseThrow().asFormat()} to message:\n" +
+                            "${getEmojiFormat(event.emoji)} to message:\n" +
                             getMessageUrl(event.guildId.orElseThrow(), event.channelId, event.messageId)
                 )
             }
