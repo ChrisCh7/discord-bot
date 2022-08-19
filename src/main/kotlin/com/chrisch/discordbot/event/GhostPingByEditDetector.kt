@@ -3,7 +3,7 @@ package com.chrisch.discordbot.event
 import com.chrisch.discordbot.util.CustomColor
 import discord4j.core.event.domain.message.MessageUpdateEvent
 import discord4j.core.spec.EmbedCreateSpec
-import kotlinx.coroutines.reactor.awaitSingle
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.stereotype.Service
 
 @Service
@@ -11,11 +11,7 @@ class GhostPingByEditDetector : EventListener<MessageUpdateEvent> {
     override val eventType: Class<MessageUpdateEvent> = MessageUpdateEvent::class.java
 
     override suspend fun execute(event: MessageUpdateEvent) {
-        if (event.old.isEmpty) {
-            return
-        }
-
-        val oldMessage = event.old.orElseThrow()
+        val oldMessage = event.old.orElse(null) ?: return
 
         if (oldMessage.author.map { it.isBot }.orElse(true)) {
             return
@@ -31,7 +27,9 @@ class GhostPingByEditDetector : EventListener<MessageUpdateEvent> {
             event.message
                 .filter { message ->
                     !(message.userMentionIds.containsAll(oldMessage.userMentionIds) &&
-                            message.roleMentionIds.containsAll(oldMessage.roleMentionIds))
+                            message.roleMentionIds.containsAll(oldMessage.roleMentionIds)) &&
+                            !(oldMessage.content == message.content && oldMessage.embeds.isEmpty() &&
+                                    message.embeds.isNotEmpty())
                 }.map { message ->
                     EmbedCreateSpec.builder()
                         .color(CustomColor.GREEN)
@@ -43,7 +41,7 @@ class GhostPingByEditDetector : EventListener<MessageUpdateEvent> {
                 }.zipWith(event.channel)
                 .flatMap { objects ->
                     objects.t2.createMessage(objects.t1)
-                }.awaitSingle()
+                }.awaitSingleOrNull()
         }
     }
 }
