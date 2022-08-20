@@ -57,7 +57,7 @@ class SnipeCacherDeleteBulk(private val snipeStore: SnipeStore) : EventListener<
             author = message.author.map { it.tag }.orElse(""),
             authorId = message.author.map { it.id }.orElse(Snowflake.of("0")),
             images = message.attachments.map { it.proxyUrl },
-            stickers = message.stickers.map { it.data.asset() },
+            stickers = message.stickersItems.map { it.imageUrl },
             deletionTimestamp = Instant.now()
         )
     }

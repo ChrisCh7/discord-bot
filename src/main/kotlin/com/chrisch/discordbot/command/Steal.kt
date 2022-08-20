@@ -46,7 +46,7 @@ class Steal : CommandHandler<ChatInputInteractionEvent> {
         }
 
         if (!event.interaction.member.orElseThrow().basePermissions.awaitSingle()
-                .contains(Permission.MANAGE_EMOJIS)
+                .contains(Permission.MANAGE_EMOJIS_AND_STICKERS)
         ) {
             event.reply("You don't have permission to add emojis.").withEphemeral(true).awaitSingleOrNull()
         }
