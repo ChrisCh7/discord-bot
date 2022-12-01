@@ -1,13 +1,14 @@
 package com.chrisch.discordbot.command
 
 import com.chrisch.discordbot.util.Utils.getOptionValue
-import discord4j.core.event.domain.interaction.ChatInputInteractionEvent
 import discord4j.core.`object`.command.ApplicationCommandOption
+import discord4j.core.event.domain.interaction.ChatInputInteractionEvent
 import discord4j.discordjson.json.ApplicationCommandOptionData
 import discord4j.discordjson.json.ApplicationCommandRequest
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatusCode
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.stereotype.Service
 import org.springframework.web.reactive.function.client.WebClient
@@ -46,7 +47,7 @@ class UnshortenLink : CommandHandler<ChatInputInteractionEvent> {
         ).build()
 
         val url = getOptionValue(event, "url").asString()
-        var responseResult: HttpStatus = HttpStatus.NOT_FOUND
+        var responseResult: HttpStatusCode = HttpStatus.NOT_FOUND
 
         try {
             responseResult = client.head().uri(url).exchangeToMono { it.statusCode().toMono() }.awaitSingle()
