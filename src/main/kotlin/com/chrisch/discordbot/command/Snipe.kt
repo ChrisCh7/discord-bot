@@ -81,7 +81,7 @@ class Snipe(private val snipeStore: SnipeStore) : CommandHandler<ChatInputIntera
                 if (lastDeletedMessageInChannel.stickers.isNotEmpty()) {
                     addField("Sticker", lastDeletedMessageInChannel.stickers.first(), false)
                 }
-            }
+            }.addField("Deleted", "<t:${lastDeletedMessageInChannel.deletionTimestamp.epochSecond}>", false)
             .build()
 
         event.reply(InteractionApplicationCommandCallbackSpec.builder().addEmbed(embed).build()).awaitSingleOrNull()
