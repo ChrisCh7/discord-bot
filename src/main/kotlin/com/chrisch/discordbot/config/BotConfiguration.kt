@@ -53,8 +53,7 @@ class BotConfiguration(private val emojiStore: EmojiStore) {
         return Flux.merge(eventListeners.stream()
             .map { listener ->
                 eventDispatcher.on(listener.eventType)
-                    .flatMap { mono { listener.execute(it) }.then() }
-                    .onErrorResume(listener::handleError)
+                    .flatMap { mono { listener.execute(it) }.then().onErrorResume(listener::handleError) }
             }
             .toList()
         )
