@@ -54,7 +54,11 @@ class GhostPingDetector : EventListener<MessageDeleteEvent> {
             .addField("Message", message.content, false)
             .apply {
                 if (repliedToMessage != null) {
-                    addField("Message replied to", getMessageUrl(repliedToMessage), true)
+                    addField(
+                        "Message replied to",
+                        getMessageUrl(message.guildId.orElseThrow(), repliedToMessage.channelId, repliedToMessage.id),
+                        true
+                    )
                 }
             }
             .build()
