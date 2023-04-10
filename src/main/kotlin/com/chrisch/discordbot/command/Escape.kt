@@ -75,7 +75,7 @@ class Escape : CommandHandler<ChatInputInteractionEvent> {
     }
 
     companion object {
-        private val percentageChanceOfEscaping = 10
-        private val escapeCooldownSeconds = 3600
+        private const val percentageChanceOfEscaping = 10
+        private const val escapeCooldownSeconds = 3600
     }
 }

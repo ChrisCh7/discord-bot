@@ -58,6 +58,7 @@ object Utils {
 
     fun getEmojiFormat(reactionEmoji: ReactionEmoji): String {
         return reactionEmoji.asCustomEmoji().map { it.asFormat() }
-            .orElseGet { reactionEmoji.asUnicodeEmoji().map { it.raw }.orElse("unknown emoji") }
+            .or { reactionEmoji.asUnicodeEmoji().map { it.raw } }
+            .orElse("unknown emoji")
     }
 }

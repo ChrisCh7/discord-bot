@@ -22,19 +22,14 @@ class EmojiAutocomplete(private val emojiStore: EmojiStore) : AutocompleteHandle
         val emojiMatchesContains = emojiStore.emojis.filterKeys { it.lowercase().contains(name.lowercase()) }
         val emojiMatches = emojiMatchesStartsWith + emojiMatchesContains
 
-        val options = mutableListOf<ApplicationCommandOptionChoiceData>()
-
-        if (name.equals("all", true)) {
-            options.add(ApplicationCommandOptionChoiceData.builder().name("all").value("all").build())
-        }
-
-        if (emojiMatches.isEmpty()) {
-            return options
-        } else {
-            for (emojiName in emojiMatches.keys) {
-                options.add(ApplicationCommandOptionChoiceData.builder().name(emojiName).value(emojiName).build())
-            }
-            return options.take(25)
-        }
+        return mutableListOf<ApplicationCommandOptionChoiceData>()
+            .apply {
+                if (name.equals("all", true)) {
+                    add(ApplicationCommandOptionChoiceData.builder().name("all").value("all").build())
+                }
+                for (emojiName in emojiMatches.keys) {
+                    add(ApplicationCommandOptionChoiceData.builder().name(emojiName).value(emojiName).build())
+                }
+            }.take(25)
     }
 }

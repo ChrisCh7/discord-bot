@@ -61,7 +61,7 @@ class AntiMultiChannelSpam : EventListener<MessageCreateEvent> {
         val distinctChannels = userMessages[authorId]!!.stream().map { it.channelId }.distinct().toList()
 
         if (distinctMessages.size == 1 && distinctChannels.size == THRESHOLD &&
-            userMessages[authorId]!![4].timestamp.epochSecond - userMessages[authorId]!![0].timestamp.epochSecond <= THRESHOLD * 2
+            userMessages[authorId]!!.last().timestamp.epochSecond - userMessages[authorId]!!.first().timestamp.epochSecond <= THRESHOLD * 2
         ) {
             val authorMember = message.authorAsMember.awaitSingle()
             val guild = message.guild.awaitSingle()

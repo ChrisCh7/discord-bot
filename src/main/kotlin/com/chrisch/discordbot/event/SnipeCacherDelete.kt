@@ -74,10 +74,8 @@ class SnipeCacherDelete(private val snipeStore: SnipeStore) : EventListener<Mess
         if (messages.size == 1) {
             if (isPurgeCommand) {
                 messages.removeLast()
-                return
-            } else {
-                return
             }
+            return
         } else if (isPurgeCommand) {
             messages.removeLast()
             return
