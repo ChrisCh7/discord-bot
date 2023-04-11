@@ -11,11 +11,6 @@
       "description": "Description for GUILD_ID."
     },
     {
-      "name": "PRISONER_ROLE_ID",
-      "type": "java.lang.String",
-      "description": "Description for PRISONER_ROLE_ID."
-    },
-    {
       "name": "SUGGESTIONS_CHANNEL_ID",
       "type": "java.lang.String",
       "description": "Description for SUGGESTIONS_CHANNEL_ID."
