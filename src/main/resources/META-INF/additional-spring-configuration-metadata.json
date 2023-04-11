@@ -41,11 +41,6 @@
       "description": "Description for TRACKED_MESSAGE_IDS."
     },
     {
-      "name": "MUTED_ROLE_ID",
-      "type": "java.lang.String",
-      "description": "Description for MUTED_ROLE_ID."
-    },
-    {
       "name": "REPORTS_CHANNEL_ID",
       "type": "java.lang.String",
       "description": "Description for REPORTS_CHANNEL_ID."

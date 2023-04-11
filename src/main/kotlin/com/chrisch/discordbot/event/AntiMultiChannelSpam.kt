@@ -8,15 +8,13 @@ import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
+import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 
 @Service
 class AntiMultiChannelSpam : EventListener<MessageCreateEvent> {
-
-    @Value("\${MUTED_ROLE_ID}")
-    private val mutedRoleId: String = ""
 
     @Value("\${REPORTS_CHANNEL_ID}")
     private val reportChannelId: String = ""
@@ -66,8 +64,9 @@ class AntiMultiChannelSpam : EventListener<MessageCreateEvent> {
             val authorMember = message.authorAsMember.awaitSingle()
             val guild = message.guild.awaitSingle()
 
-            if (!authorMember.roleIds.contains(Snowflake.of(mutedRoleId))) {
-                authorMember.addRole(Snowflake.of(mutedRoleId), "multi-channel spam").awaitSingleOrNull()
+            if (authorMember.communicationDisabledUntil.isEmpty) {
+                authorMember.edit().withCommunicationDisabledUntilOrNull(Instant.now().plus(Duration.ofDays(27)))
+                    .withReason("multi-channel spam").awaitSingle()
             }
 
             val purgeAlreadyStarted =
@@ -93,7 +92,7 @@ class AntiMultiChannelSpam : EventListener<MessageCreateEvent> {
                                     "Reason: multi-channel spam\n" +
                                     "Proof:\n" +
                                     "```\n${message.content}\n```" +
-                                    "Action took: muted"
+                                    "Action took: 27 days timeout"
                         )
                     }.onErrorResume { Mono.empty() }.awaitSingleOrNull()
             }
