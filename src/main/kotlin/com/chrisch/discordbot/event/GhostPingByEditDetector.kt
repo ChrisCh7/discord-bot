@@ -3,7 +3,7 @@ package com.chrisch.discordbot.event
 import com.chrisch.discordbot.util.CustomColor
 import discord4j.core.event.domain.message.MessageUpdateEvent
 import discord4j.core.spec.EmbedCreateSpec
-import kotlinx.coroutines.reactor.awaitSingleOrNull
+import kotlinx.coroutines.reactor.awaitSingle
 import org.springframework.stereotype.Service
 
 @Service
@@ -24,24 +24,24 @@ class GhostPingByEditDetector : EventListener<MessageUpdateEvent> {
                 return
             }
 
-            event.message
-                .filter { message ->
-                    !(message.userMentionIds.containsAll(oldMessage.userMentionIds) &&
-                            message.roleMentionIds.containsAll(oldMessage.roleMentionIds)) &&
-                            !(oldMessage.content == message.content && oldMessage.embeds.isEmpty() &&
-                                    message.embeds.isNotEmpty())
-                }.map { message ->
-                    EmbedCreateSpec.builder()
-                        .color(CustomColor.GREEN)
-                        .title("Ghost Ping By Edit Detected!")
-                        .addField("Author", oldMessage.author.orElseThrow().tag, false)
-                        .addField("Old Message", oldMessage.content, false)
-                        .addField("New Message", message.content, false)
-                        .build()
-                }.zipWith(event.channel)
-                .flatMap { objects ->
-                    objects.t2.createMessage(objects.t1)
-                }.awaitSingleOrNull()
+            val message = event.message.awaitSingle()
+
+            if ((message.userMentionIds.containsAll(oldMessage.userMentionIds) &&
+                        message.roleMentionIds.containsAll(oldMessage.roleMentionIds)) ||
+                (oldMessage.content == message.content && oldMessage.embeds.isEmpty() && message.embeds.isNotEmpty())
+            ) {
+                return
+            }
+
+            val embed = EmbedCreateSpec.builder()
+                .color(CustomColor.GREEN)
+                .title("Ghost Ping By Edit Detected!")
+                .addField("Author", oldMessage.author.orElseThrow().tag, false)
+                .addField("Old Message", oldMessage.content, false)
+                .addField("New Message", message.content, false)
+                .build()
+
+            event.channel.flatMap { it.createMessage(embed) }.awaitSingle()
         }
     }
 }

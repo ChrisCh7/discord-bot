@@ -5,7 +5,6 @@ import com.chrisch.discordbot.util.Utils.getOptionValue
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent
 import discord4j.core.`object`.command.ApplicationCommandOption
 import discord4j.core.spec.EmbedCreateSpec
-import discord4j.core.spec.InteractionApplicationCommandCallbackSpec
 import discord4j.discordjson.json.ApplicationCommandOptionChoiceData
 import discord4j.discordjson.json.ApplicationCommandOptionData
 import discord4j.discordjson.json.ApplicationCommandRequest
@@ -38,7 +37,7 @@ class Rule : CommandHandler<ChatInputInteractionEvent> {
             .description("${rules[getOptionValue(event, "rule_number").asLong().toInt() - 1]}\n\n<#745246003275497543>")
             .build()
 
-        event.reply(InteractionApplicationCommandCallbackSpec.builder().addEmbed(embed).build()).awaitSingleOrNull()
+        event.reply().withEmbeds(embed).awaitSingleOrNull()
     }
 
     fun getRuleChoices(): List<ApplicationCommandOptionChoiceData> {

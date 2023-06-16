@@ -5,7 +5,6 @@ import com.chrisch.discordbot.util.SnipeStore
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent
 import discord4j.core.`object`.command.ApplicationCommandOption
 import discord4j.core.spec.EmbedCreateSpec
-import discord4j.core.spec.InteractionApplicationCommandCallbackSpec
 import discord4j.discordjson.json.ApplicationCommandOptionChoiceData
 import discord4j.discordjson.json.ApplicationCommandOptionData
 import discord4j.discordjson.json.ApplicationCommandRequest
@@ -84,7 +83,7 @@ class Snipe(private val snipeStore: SnipeStore) : CommandHandler<ChatInputIntera
             }.addField("Deleted", "<t:${lastDeletedMessageInChannel.deletionTimestamp.epochSecond}>", false)
             .build()
 
-        event.reply(InteractionApplicationCommandCallbackSpec.builder().addEmbed(embed).build()).awaitSingleOrNull()
+        event.reply().withEmbeds(embed).awaitSingleOrNull()
     }
 
     private fun getSnipeOptionChoices(): List<ApplicationCommandOptionChoiceData> {
