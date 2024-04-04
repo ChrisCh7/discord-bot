@@ -28,7 +28,7 @@ class GhostPingByEditDetector : EventListener<MessageUpdateEvent> {
 
             if ((message.userMentionIds.containsAll(oldMessage.userMentionIds) &&
                         message.roleMentionIds.containsAll(oldMessage.roleMentionIds)) ||
-                (oldMessage.content == message.content && oldMessage.embeds.isEmpty() && message.embeds.isNotEmpty())
+                oldMessage.content == message.content
             ) {
                 return
             }
