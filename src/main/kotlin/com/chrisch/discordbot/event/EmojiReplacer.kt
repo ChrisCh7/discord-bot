@@ -18,7 +18,7 @@ class EmojiReplacer(private val emojiStore: EmojiStore) : EventListener<MessageC
         val message = event.message
 
         if (message.author.map { it.isBot }.orElse(true) || message.guildId.isEmpty ||
-            message.content.isBlank() || (message.content.isNotBlank() && message.content.contains("@"))
+            message.content.isBlank() || message.content.contains("@") || message.referencedMessage.isPresent
         ) {
             return
         }
