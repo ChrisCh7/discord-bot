@@ -20,12 +20,15 @@ class CommandListener(
     private val log = LoggerFactory.getLogger(javaClass)
 
     init {
-        client.on(ChatInputInteractionEvent::class.java).flatMap { handle(it, commandHandlersChat) }
-            .onErrorResume { logCommandError(it) }.subscribe()
-        client.on(MessageInteractionEvent::class.java).flatMap { handle(it, commandHandlersMessage) }
-            .onErrorResume { logCommandError(it) }.subscribe()
-        client.on(UserInteractionEvent::class.java).flatMap { handle(it, commandHandlersUser) }
-            .onErrorResume { logCommandError(it) }.subscribe()
+        client.on(ChatInputInteractionEvent::class.java)
+            .flatMap { handle(it, commandHandlersChat).onErrorResume(::logCommandError) }
+            .subscribe()
+        client.on(MessageInteractionEvent::class.java)
+            .flatMap { handle(it, commandHandlersMessage).onErrorResume(::logCommandError) }
+            .subscribe()
+        client.on(UserInteractionEvent::class.java)
+            .flatMap { handle(it, commandHandlersUser).onErrorResume(::logCommandError) }
+            .subscribe()
     }
 
     fun <T : ApplicationCommandInteractionEvent> handle(event: T, handlers: List<CommandHandler<T>>): Mono<Void> {

@@ -16,8 +16,9 @@ class AutocompleteListener(
     private val log = LoggerFactory.getLogger(javaClass)
 
     init {
-        client.on(ChatInputAutoCompleteEvent::class.java).flatMap { handle(it, autocompleteHandlersChat) }
-            .onErrorResume { logAutocompleteError(it) }.subscribe()
+        client.on(ChatInputAutoCompleteEvent::class.java)
+            .flatMap { handle(it, autocompleteHandlersChat).onErrorResume(::logAutocompleteError) }
+            .subscribe()
     }
 
     fun <T : AutoCompleteInteractionEvent> handle(event: T, handlers: List<AutocompleteHandler<T>>): Mono<Void> {

@@ -19,12 +19,15 @@ class ComponentListener(
     private val log = LoggerFactory.getLogger(javaClass)
 
     init {
-        client.on(ButtonInteractionEvent::class.java).flatMap { handle(it, componentHandlersButton) }
-            .onErrorResume { logComponentError(it) }.subscribe()
-        client.on(ModalSubmitInteractionEvent::class.java).flatMap { handle(it, componentHandlersModal) }
-            .onErrorResume { logComponentError(it) }.subscribe()
-        client.on(SelectMenuInteractionEvent::class.java).flatMap { handle(it, componentHandlersSelect) }
-            .onErrorResume { logComponentError(it) }.subscribe()
+        client.on(ButtonInteractionEvent::class.java)
+            .flatMap { handle(it, componentHandlersButton).onErrorResume(::logComponentError) }
+            .subscribe()
+        client.on(ModalSubmitInteractionEvent::class.java)
+            .flatMap { handle(it, componentHandlersModal).onErrorResume(::logComponentError) }
+            .subscribe()
+        client.on(SelectMenuInteractionEvent::class.java)
+            .flatMap { handle(it, componentHandlersSelect).onErrorResume(::logComponentError) }
+            .subscribe()
     }
 
     fun <T : ComponentInteractionEvent> handle(event: T, handlers: List<ComponentHandler<T>>): Mono<Void> {
