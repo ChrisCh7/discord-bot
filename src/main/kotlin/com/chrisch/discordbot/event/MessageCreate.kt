@@ -26,7 +26,7 @@ class MessageCreate : EventListener<MessageCreateEvent> {
                 .build()
 
             message.channel
-                .flatMap { channel -> channel.createMessage(embed).withMessageReference(message.id) }
+                .flatMap { channel -> channel.createMessage(embed).withMessageReferenceId(message.id) }
                 .delayElement(Duration.ofSeconds(10))
                 .flatMap { it.delete() }.awaitSingleOrNull()
         }
