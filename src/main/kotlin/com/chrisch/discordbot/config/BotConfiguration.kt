@@ -27,7 +27,14 @@ class BotConfiguration(private val emojiStore: EmojiStore, private val config: C
             .build()
             .gateway()
             .withEventDispatcher { eventDispatcher -> subscribeToEvents(eventDispatcher, eventListeners) }
-            .setEnabledIntents(IntentSet.of(Intent.GUILDS, Intent.GUILD_MESSAGES, Intent.GUILD_MESSAGE_REACTIONS))
+            .setEnabledIntents(
+                IntentSet.of(
+                    Intent.GUILDS,
+                    Intent.GUILD_MESSAGES,
+                    Intent.GUILD_MESSAGE_REACTIONS,
+                    Intent.MESSAGE_CONTENT
+                )
+            )
             .login()
             .delayElement(Duration.ofSeconds(10))
             .flatMap { client ->
