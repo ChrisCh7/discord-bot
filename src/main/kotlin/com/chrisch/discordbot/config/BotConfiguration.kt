@@ -11,23 +11,19 @@ import discord4j.gateway.intent.IntentSet
 import discord4j.rest.RestClient
 import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import reactor.core.publisher.Flux
 import java.time.Duration
 
 @Configuration
-class BotConfiguration(private val emojiStore: EmojiStore) {
-
-    @Value("\${TOKEN}")
-    private val token: String = ""
+class BotConfiguration(private val emojiStore: EmojiStore, private val config: Config) {
 
     private val log = LoggerFactory.getLogger(BotConfiguration::class.java)
 
     @Bean
     fun <T : Event> gatewayDiscordClient(eventListeners: List<EventListener<T>>): GatewayDiscordClient? {
-        return DiscordClientBuilder.create(token)
+        return DiscordClientBuilder.create(config.token)
             .build()
             .gateway()
             .withEventDispatcher { eventDispatcher -> subscribeToEvents(eventDispatcher, eventListeners) }
@@ -50,12 +46,13 @@ class BotConfiguration(private val emojiStore: EmojiStore) {
         eventDispatcher: EventDispatcher,
         eventListeners: List<EventListener<T>>
     ): Flux<Void> {
-        return Flux.merge(eventListeners.stream()
-            .map { listener ->
-                eventDispatcher.on(listener.eventType)
-                    .flatMap { mono { listener.execute(it) }.then().onErrorResume(listener::handleError) }
-            }
-            .toList()
+        return Flux.merge(
+            eventListeners.stream()
+                .map { listener ->
+                    eventDispatcher.on(listener.eventType)
+                        .flatMap { mono { listener.execute(it) }.then().onErrorResume(listener::handleError) }
+                }
+                .toList()
         )
     }
 

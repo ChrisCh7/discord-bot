@@ -1,5 +1,6 @@
 package com.chrisch.discordbot.event
 
+import com.chrisch.discordbot.config.Config
 import com.chrisch.discordbot.util.CustomColor
 import discord4j.common.util.Snowflake
 import discord4j.core.event.domain.message.ReactionAddEvent
@@ -7,17 +8,10 @@ import discord4j.core.`object`.entity.channel.TopLevelGuildMessageChannel
 import discord4j.core.spec.EmbedCreateSpec
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 
 @Service
-class SuggestionRemover : EventListener<ReactionAddEvent> {
-
-    @Value("\${SUGGESTIONS_CHANNEL_ID}")
-    private val suggestionsChannelId: String = ""
-
-    @Value("\${LOGS_CHANNEL_ID}")
-    private val logsChannelId: String = ""
+class SuggestionRemover(private val config: Config) : EventListener<ReactionAddEvent> {
 
     override val eventType: Class<ReactionAddEvent> = ReactionAddEvent::class.java
 
@@ -26,7 +20,7 @@ class SuggestionRemover : EventListener<ReactionAddEvent> {
 
         val member = event.member.orElseThrow()
 
-        if (member.isBot || event.channelId != Snowflake.of(suggestionsChannelId)) {
+        if (member.isBot || event.channelId != Snowflake.of(config.suggestionsChannelId)) {
             return
         }
 
@@ -52,7 +46,7 @@ class SuggestionRemover : EventListener<ReactionAddEvent> {
                 .build()
 
             message.guild
-                .flatMap { it.getChannelById(Snowflake.of(logsChannelId)) }
+                .flatMap { it.getChannelById(Snowflake.of(config.logsChannelId)) }
                 .ofType(TopLevelGuildMessageChannel::class.java)
                 .flatMap {
                     it.createMessage(

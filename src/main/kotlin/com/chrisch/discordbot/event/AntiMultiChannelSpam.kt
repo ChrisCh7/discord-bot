@@ -1,11 +1,11 @@
 package com.chrisch.discordbot.event
 
+import com.chrisch.discordbot.config.Config
 import discord4j.common.util.Snowflake
 import discord4j.core.event.domain.message.MessageCreateEvent
 import discord4j.core.`object`.entity.channel.TopLevelGuildMessageChannel
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import java.time.Duration
@@ -14,10 +14,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
 
 @Service
-class AntiMultiChannelSpam : EventListener<MessageCreateEvent> {
-
-    @Value("\${REPORTS_CHANNEL_ID}")
-    private val reportChannelId: String = ""
+class AntiMultiChannelSpam(private val config: Config) : EventListener<MessageCreateEvent> {
 
     private data class UserMessage(
         val message: String,
@@ -84,7 +81,7 @@ class AntiMultiChannelSpam : EventListener<MessageCreateEvent> {
             }
 
             if (!purgeAlreadyStarted) {
-                guild.getChannelById(Snowflake.of(reportChannelId))
+                guild.getChannelById(Snowflake.of(config.reportChannelId))
                     .ofType(TopLevelGuildMessageChannel::class.java)
                     .flatMap {
                         it.createMessage(

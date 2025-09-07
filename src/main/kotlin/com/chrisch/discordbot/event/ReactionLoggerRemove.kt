@@ -1,32 +1,23 @@
 package com.chrisch.discordbot.event
 
+import com.chrisch.discordbot.config.Config
 import com.chrisch.discordbot.util.Utils.getEmojiFormat
 import com.chrisch.discordbot.util.Utils.getMessageUrl
 import discord4j.common.util.Snowflake
 import discord4j.core.event.domain.message.ReactionRemoveEvent
 import discord4j.core.`object`.entity.channel.TopLevelGuildMessageChannel
 import kotlinx.coroutines.reactor.awaitSingle
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 
 @Service
-class ReactionLoggerRemove : EventListener<ReactionRemoveEvent> {
-
-    @Value("\${TRACKED_MESSAGE_IDS}")
-    private val trackedMessageIds: List<String> = listOf()
-
-    @Value("\${TRACKED_CHANNEL_IDS}")
-    private val trackedChannelIds: List<String> = listOf()
-
-    @Value("\${LOGS_REACTIONS_CHANNEL_ID}")
-    private val logsReactionsChannelId: String = ""
+class ReactionLoggerRemove(private val config: Config) : EventListener<ReactionRemoveEvent> {
 
     override val eventType: Class<ReactionRemoveEvent> = ReactionRemoveEvent::class.java
 
     override suspend fun execute(event: ReactionRemoveEvent) {
         if (event.guildId.isEmpty) return
 
-        if ((trackedMessageIds.isEmpty() && trackedChannelIds.isEmpty()) || logsReactionsChannelId.isBlank()) {
+        if ((config.trackedMessageIds.isEmpty() && config.trackedChannelIds.isEmpty()) || config.logsReactionsChannelId.isBlank()) {
             return
         }
 
@@ -36,14 +27,14 @@ class ReactionLoggerRemove : EventListener<ReactionRemoveEvent> {
             return
         }
 
-        if (!trackedMessageIds.contains(event.messageId.asString()) &&
-            !trackedChannelIds.contains(event.channelId.asString())
+        if (!config.trackedMessageIds.contains(event.messageId.asString()) &&
+            !config.trackedChannelIds.contains(event.channelId.asString())
         ) {
             return
         }
 
         event.guild
-            .flatMap { it.getChannelById(Snowflake.of(logsReactionsChannelId)) }
+            .flatMap { it.getChannelById(Snowflake.of(config.logsReactionsChannelId)) }
             .ofType(TopLevelGuildMessageChannel::class.java)
             .flatMap {
                 it.createMessage(
