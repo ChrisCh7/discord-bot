@@ -13,4 +13,5 @@ data class Config(
     val trackedMessageIds: List<String>,
     val reportChannelId: String,
     val countingChannelId: String,
+    val antiSpamChannelId: String,
 )
