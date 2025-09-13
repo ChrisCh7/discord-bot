@@ -18,8 +18,7 @@ class AntiSpam(private val config: Config) : EventListener<MessageCreateEvent> {
         val message = event.message
 
         if (message.author.map { it.isBot }.orElse(true) ||
-            message.channelId != Snowflake.of(config.antiSpamChannelId) ||
-            message.content.isBlank()
+            message.channelId != Snowflake.of(config.antiSpamChannelId)
         ) {
             return
         }
