@@ -1,6 +1,7 @@
 package com.chrisch.discordbot.event
 
 import com.chrisch.discordbot.util.CustomColor
+import com.chrisch.discordbot.util.Utils.withMessageReference
 import discord4j.core.event.domain.message.MessageCreateEvent
 import discord4j.core.spec.EmbedCreateSpec
 import kotlinx.coroutines.reactor.awaitSingleOrNull
@@ -26,7 +27,7 @@ class MessageCreate : EventListener<MessageCreateEvent> {
                 .build()
 
             message.channel
-                .flatMap { channel -> channel.createMessage(embed).withMessageReferenceId(message.id) }
+                .flatMap { channel -> channel.createMessage(embed).withMessageReference(message) }
                 .delayElement(Duration.ofSeconds(10))
                 .flatMap { it.delete() }.awaitSingleOrNull()
         }

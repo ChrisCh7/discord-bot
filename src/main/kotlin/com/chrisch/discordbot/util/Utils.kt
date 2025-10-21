@@ -4,9 +4,11 @@ import discord4j.common.util.Snowflake
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent
 import discord4j.core.`object`.Embed
 import discord4j.core.`object`.command.ApplicationCommandInteractionOptionValue
+import discord4j.core.`object`.emoji.Emoji
 import discord4j.core.`object`.entity.Message
-import discord4j.core.`object`.reaction.ReactionEmoji
 import discord4j.core.spec.EmbedCreateSpec
+import discord4j.core.spec.MessageCreateMono
+import discord4j.discordjson.json.MessageReferenceData
 
 object Utils {
 
@@ -32,9 +34,9 @@ object Utils {
         }/${channelId.asString()}/${messageId.asString()}"
     }
 
-    fun getReactionEmoji(format: String): ReactionEmoji {
+    fun getEmoji(format: String): Emoji {
         val (animated, name, id) = emojiRegex.find(format)!!.destructured
-        return ReactionEmoji.of(id.toLong(), name, animated == "a")
+        return Emoji.of(id.toLong(), name, animated == "a")
     }
 
     fun getEmbedCreateSpecFromEmbed(embed: Embed): EmbedCreateSpec {
@@ -56,9 +58,21 @@ object Utils {
             .build()
     }
 
-    fun getEmojiFormat(reactionEmoji: ReactionEmoji): String {
-        return reactionEmoji.asCustomEmoji().map { it.asFormat() }
-            .or { reactionEmoji.asUnicodeEmoji().map { it.raw } }
+    fun getEmojiFormat(emoji: Emoji): String {
+        return emoji.asCustomEmoji().map { it.asFormat() }
+            .or { emoji.asUnicodeEmoji().map { it.raw } }
             .orElse("unknown emoji")
+    }
+
+    fun MessageCreateMono.withMessageReference(message: Message): MessageCreateMono {
+        return this.withMessageReference(
+            MessageReferenceData.builder()
+                .type(message.type.value)
+                .messageId(message.id.asString())
+                .channelId(message.channelId.asString())
+                .guildId(message.guildId.orElseThrow().asString())
+                .failIfNotExists(true)
+                .build()
+        )
     }
 }

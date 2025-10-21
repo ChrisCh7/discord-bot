@@ -2,7 +2,7 @@ package com.chrisch.discordbot.event
 
 import com.chrisch.discordbot.config.Config
 import com.chrisch.discordbot.util.EmojiStore
-import com.chrisch.discordbot.util.Utils.getReactionEmoji
+import com.chrisch.discordbot.util.Utils.getEmoji
 import discord4j.common.util.Snowflake
 import discord4j.core.event.domain.message.MessageCreateEvent
 import kotlinx.coroutines.reactor.awaitSingleOrNull
@@ -22,8 +22,8 @@ class SuggestionReacter(private val emojiStore: EmojiStore, private val config: 
         }
 
         if (message.channelId == Snowflake.of(config.suggestionsChannelId)) {
-            message.addReaction(getReactionEmoji(emojiStore.emojis["upvote"]!!))
-                .then(message.addReaction(getReactionEmoji(emojiStore.emojis["downvote"]!!)))
+            message.addReaction(getEmoji(emojiStore.emojis["upvote"]!!))
+                .then(message.addReaction(getEmoji(emojiStore.emojis["downvote"]!!)))
                 .awaitSingleOrNull()
         }
     }

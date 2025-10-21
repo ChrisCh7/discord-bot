@@ -8,6 +8,6 @@ import org.springframework.stereotype.Component
 class ShutdownHook(private val client: GatewayDiscordClient) {
     @PreDestroy
     fun shutdown() {
-        client.logout().subscribe()
+        client.logout().block()
     }
 }
