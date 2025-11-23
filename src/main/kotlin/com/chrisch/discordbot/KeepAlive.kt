@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class KeepAlive(private val client: GatewayDiscordClient) : ApplicationRunner {
-    override fun run(args: ApplicationArguments?) {
+    override fun run(args: ApplicationArguments) {
         client.onDisconnect().block()
     }
 }
