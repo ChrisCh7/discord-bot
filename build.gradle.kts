@@ -1,8 +1,8 @@
 plugins {
-    id("org.springframework.boot") version "4.0.0"
+    id("org.springframework.boot") version "4.0.5"
     id("io.spring.dependency-management") version "1.1.7"
-    kotlin("jvm") version "2.2.21"
-    kotlin("plugin.spring") version "2.2.21"
+    kotlin("jvm") version "2.3.20"
+    kotlin("plugin.spring") version "2.3.20"
 }
 
 group = "com.chrisch"
@@ -10,7 +10,7 @@ version = "1.0.0"
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(25)
     }
 }
 
@@ -31,7 +31,7 @@ dependencies {
     implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
-    implementation("com.discord4j:discord4j-core:3.3.0")
+    implementation("com.discord4j:discord4j-core:3.3.2")
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("io.projectreactor:reactor-test")
