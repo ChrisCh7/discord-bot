@@ -23,7 +23,7 @@ class CommandDeployer(
             .flatMap { applicationId ->
                 client.applicationService
                     .bulkOverwriteGuildApplicationCommand(
-                        applicationId!!, config.guildId.toLong(), commandListeners.stream()
+                        applicationId, config.guildId.toLong(), commandListeners.stream()
                             .map { it.command }.toList()
                     ).count()
             }.doOnNext { count -> log.info("Successfully registered $count application commands.") }
