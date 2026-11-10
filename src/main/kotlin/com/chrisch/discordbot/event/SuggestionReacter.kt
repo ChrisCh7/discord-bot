@@ -12,8 +12,6 @@ import org.springframework.stereotype.Service
 class SuggestionReacter(private val emojiStore: EmojiStore, private val config: Config) :
     EventListener<MessageCreateEvent> {
 
-    override val eventType: Class<MessageCreateEvent> = MessageCreateEvent::class.java
-
     override suspend fun execute(event: MessageCreateEvent) {
         val message = event.message
 

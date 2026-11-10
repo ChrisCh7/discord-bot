@@ -12,8 +12,6 @@ import java.util.concurrent.CopyOnWriteArrayList
 
 @Service
 class SnipeCacherDeleteBulk(private val snipeStore: SnipeStore) : EventListener<MessageBulkDeleteEvent> {
-    override val eventType: Class<MessageBulkDeleteEvent> = MessageBulkDeleteEvent::class.java
-
     override suspend fun execute(event: MessageBulkDeleteEvent) {
         val messages = event.messages.sortedBy { it.id }
         for (message in messages) {

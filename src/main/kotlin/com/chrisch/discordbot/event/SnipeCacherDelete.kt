@@ -12,8 +12,6 @@ import java.util.concurrent.CopyOnWriteArrayList
 
 @Service
 class SnipeCacherDelete(private val snipeStore: SnipeStore) : EventListener<MessageDeleteEvent> {
-    override val eventType: Class<MessageDeleteEvent> = MessageDeleteEvent::class.java
-
     override suspend fun execute(event: MessageDeleteEvent) {
         if (event.message.isEmpty) return
 

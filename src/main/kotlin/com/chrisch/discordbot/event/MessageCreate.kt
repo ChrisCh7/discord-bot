@@ -10,8 +10,6 @@ import java.time.Duration
 
 @Service
 class MessageCreate : EventListener<MessageCreateEvent> {
-    override val eventType: Class<MessageCreateEvent> = MessageCreateEvent::class.java
-
     override suspend fun execute(event: MessageCreateEvent) {
         val message = event.message
 

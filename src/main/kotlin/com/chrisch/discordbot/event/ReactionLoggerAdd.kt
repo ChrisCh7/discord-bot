@@ -12,8 +12,6 @@ import org.springframework.stereotype.Service
 @Service
 class ReactionLoggerAdd(private val config: Config) : EventListener<ReactionAddEvent> {
 
-    override val eventType: Class<ReactionAddEvent> = ReactionAddEvent::class.java
-
     override suspend fun execute(event: ReactionAddEvent) {
         if (event.member.isEmpty) return
 

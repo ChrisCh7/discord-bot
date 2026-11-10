@@ -9,8 +9,6 @@ class Ready : EventListener<ReadyEvent> {
 
     private val log = LoggerFactory.getLogger(javaClass)
 
-    override val eventType: Class<ReadyEvent> = ReadyEvent::class.java
-
     override suspend fun execute(event: ReadyEvent) {
         log.info("Ready! Logged in as ${event.self.tag}")
     }

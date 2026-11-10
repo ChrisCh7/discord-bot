@@ -26,8 +26,6 @@ class AntiMultiChannelSpam(private val config: Config) : EventListener<MessageCr
 
     private val userMessages: ConcurrentHashMap<Snowflake, CopyOnWriteArrayList<UserMessage>> = ConcurrentHashMap()
 
-    override val eventType: Class<MessageCreateEvent> = MessageCreateEvent::class.java
-
     override suspend fun execute(event: MessageCreateEvent) {
         val message = event.message
 

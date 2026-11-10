@@ -12,8 +12,6 @@ import org.springframework.stereotype.Service
 @Service
 class ReactionLoggerRemove(private val config: Config) : EventListener<ReactionRemoveEvent> {
 
-    override val eventType: Class<ReactionRemoveEvent> = ReactionRemoveEvent::class.java
-
     override suspend fun execute(event: ReactionRemoveEvent) {
         if (event.guildId.isEmpty) return
 

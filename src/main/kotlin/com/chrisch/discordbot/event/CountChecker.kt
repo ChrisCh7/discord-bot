@@ -13,8 +13,6 @@ import reactor.core.publisher.Mono
 @Service
 class CountChecker(private val config: Config) : EventListener<MessageCreateEvent> {
 
-    override val eventType: Class<MessageCreateEvent> = MessageCreateEvent::class.java
-
     override suspend fun execute(event: MessageCreateEvent) {
         val message = event.message
 

@@ -8,8 +8,6 @@ import org.springframework.stereotype.Service
 
 @Service
 class GhostPingByEditDetector : EventListener<MessageUpdateEvent> {
-    override val eventType: Class<MessageUpdateEvent> = MessageUpdateEvent::class.java
-
     override suspend fun execute(event: MessageUpdateEvent) {
         val oldMessage = event.old.orElse(null) ?: return
 
