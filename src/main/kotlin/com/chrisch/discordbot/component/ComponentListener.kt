@@ -5,6 +5,7 @@ import discord4j.core.event.domain.interaction.ButtonInteractionEvent
 import discord4j.core.event.domain.interaction.ComponentInteractionEvent
 import discord4j.core.event.domain.interaction.ModalSubmitInteractionEvent
 import discord4j.core.event.domain.interaction.SelectMenuInteractionEvent
+import kotlinx.coroutines.reactor.mono
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Flux
@@ -34,7 +35,7 @@ class ComponentListener(
         return Flux.fromIterable(handlers)
             .filter { it.customId == event.customId }
             .next()
-            .flatMap { it.handle(event) }
+            .flatMap { mono { it.handle(event) }.then() }
     }
 
     private fun logComponentError(throwable: Throwable): Mono<Void> {
