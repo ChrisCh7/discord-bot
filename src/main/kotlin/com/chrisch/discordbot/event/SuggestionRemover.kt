@@ -2,6 +2,7 @@ package com.chrisch.discordbot.event
 
 import com.chrisch.discordbot.config.Config
 import com.chrisch.discordbot.util.CustomColor
+import com.chrisch.discordbot.util.Limit
 import discord4j.common.util.Snowflake
 import discord4j.core.event.domain.message.ReactionAddEvent
 import discord4j.core.`object`.entity.channel.TopLevelGuildMessageChannel
@@ -34,13 +35,11 @@ class SuggestionRemover(private val config: Config) : EventListener<ReactionAddE
         val diff = nrDownvotes - nrUpvotes
 
         if (diff >= voteDiffLimit) {
-            message.delete().awaitSingleOrNull()
-
             val embed = EmbedCreateSpec.builder()
                 .color(CustomColor.RED)
                 .title("Suggestion")
                 .addField("Author", message.author.orElseThrow().tag, false)
-                .addField("Message", message.content, false)
+                .addField("Message", message.content.take(Limit.EMBED_FIELD), false)
                 .build()
 
             message.guild
@@ -52,6 +51,8 @@ class SuggestionRemover(private val config: Config) : EventListener<ReactionAddE
                                 " - upvotes ($nrUpvotes) >= $voteDiffLimit"
                     ).withEmbeds(embed)
                 }.awaitSingle()
+
+            message.delete().awaitSingleOrNull()
         }
     }
 

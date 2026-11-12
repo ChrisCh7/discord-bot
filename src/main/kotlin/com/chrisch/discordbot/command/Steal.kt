@@ -1,5 +1,6 @@
 package com.chrisch.discordbot.command
 
+import com.chrisch.discordbot.util.EmojiStore
 import com.chrisch.discordbot.util.Utils.getOptionValue
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent
 import discord4j.core.`object`.command.ApplicationCommandOption
@@ -13,7 +14,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 
 @Service
-class Steal : CommandHandler<ChatInputInteractionEvent> {
+class Steal(private val emojiStore: EmojiStore) : CommandHandler<ChatInputInteractionEvent> {
 
     private val log = LoggerFactory.getLogger(javaClass)
 
@@ -49,6 +50,7 @@ class Steal : CommandHandler<ChatInputInteractionEvent> {
                 .contains(Permission.MANAGE_GUILD_EXPRESSIONS)
         ) {
             event.reply("You don't have permission to add emojis.").withEphemeral(true).awaitSingleOrNull()
+            return
         }
 
         event.deferReply().awaitSingleOrNull()
@@ -57,7 +59,8 @@ class Steal : CommandHandler<ChatInputInteractionEvent> {
             .createEmoji(
                 getOptionValue(event, "emoji_name").asString(),
                 Image.ofUrl(getOptionValue(event, "emoji_url").asString()).awaitSingle()
-            ).flatMap { emoji -> event.editReply("${emoji.asFormat()} added as ${emoji.name}") }
+            ).doOnSuccess { emoji -> emoji?.let { emojiStore.emojis[emoji.name] = emoji.asFormat() } }
+            .flatMap { emoji -> event.editReply("${emoji.asFormat()} added as ${emoji.name}") }
             .doOnError { log.error("Failed to add emoji.", it) }
             .onErrorResume { event.editReply("Failed to add emoji.") }
             .awaitSingle()

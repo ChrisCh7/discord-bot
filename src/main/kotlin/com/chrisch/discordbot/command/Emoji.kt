@@ -2,6 +2,7 @@ package com.chrisch.discordbot.command
 
 import com.chrisch.discordbot.util.CustomColor
 import com.chrisch.discordbot.util.EmojiStore
+import com.chrisch.discordbot.util.Limit
 import com.chrisch.discordbot.util.Utils.getOptionValue
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent
 import discord4j.core.`object`.command.ApplicationCommandOption
@@ -40,11 +41,15 @@ class Emoji(private val emojiStore: EmojiStore) : CommandHandler<ChatInputIntera
         val emojiName = getOptionValue(event, "name").asString()
 
         if (emojiName.equals("all", true)) {
+            val allEmojis = emojiStore.emojis.values.joinToString("")
             val embed = EmbedCreateSpec.builder()
                 .color(CustomColor.GREEN)
                 .title("${emojiStore.emojis.size} emojis")
-                .description(emojiStore.emojis.values.joinToString(""))
-                .build()
+                // cut at the last whole emoji to stay within the embed description limit
+                .description(
+                    if (allEmojis.length <= Limit.EMBED_DESCRIPTION) allEmojis else allEmojis.take(Limit.EMBED_DESCRIPTION)
+                        .substringBeforeLast("<")
+                ).build()
 
             event.reply().withEmbeds(embed).awaitSingleOrNull()
             return

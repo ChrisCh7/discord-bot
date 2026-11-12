@@ -1,6 +1,7 @@
 package com.chrisch.discordbot.event
 
 import com.chrisch.discordbot.config.Config
+import com.chrisch.discordbot.util.Limit
 import discord4j.common.util.Snowflake
 import discord4j.core.event.domain.message.MessageCreateEvent
 import discord4j.core.`object`.entity.channel.TopLevelGuildMessageChannel
@@ -86,7 +87,7 @@ class AntiMultiChannelSpam(private val config: Config) : EventListener<MessageCr
                             "User: ${message.author.orElseThrow().tag} (${message.author.orElseThrow().id.asString()})\n" +
                                     "Reason: multi-channel spam\n" +
                                     "Proof:\n" +
-                                    "```\n${message.content}\n```" +
+                                    "```\n${message.content.take(Limit.MESSAGE)}\n```" +
                                     "Action took: 27 days timeout"
                         )
                     }.onErrorResume { Mono.empty() }.awaitSingleOrNull()

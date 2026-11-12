@@ -1,6 +1,7 @@
 package com.chrisch.discordbot.event
 
 import com.chrisch.discordbot.config.Config
+import com.chrisch.discordbot.util.Limit
 import discord4j.common.util.Snowflake
 import discord4j.core.event.domain.message.MessageCreateEvent
 import discord4j.core.`object`.entity.channel.TopLevelGuildMessageChannel
@@ -35,7 +36,7 @@ class AntiSpam(private val config: Config) : EventListener<MessageCreateEvent> {
                     "User: ${message.author.orElseThrow().tag} (${message.author.orElseThrow().id.asString()})\n" +
                             "Reason: posted in <#${config.antiSpamChannelId}> (anti-spam trap)\n" +
                             "Proof:\n" +
-                            "```\n${message.content}\n```" +
+                            "```\n${message.content.take(Limit.MESSAGE)}\n```" +
                             "Action took: ban + delete message history previous hour"
                 )
             }.onErrorResume { Mono.empty() }.awaitSingleOrNull()

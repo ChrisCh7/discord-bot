@@ -4,11 +4,11 @@ import com.chrisch.discordbot.util.EmojiStore
 import discord4j.core.event.domain.message.MessageCreateEvent
 import discord4j.core.`object`.entity.channel.TopLevelGuildMessageChannel
 import discord4j.core.spec.WebhookExecuteSpec
+import discord4j.rest.util.AllowedMentions
 import discord4j.rest.util.Image
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.stereotype.Service
-import reactor.core.publisher.Mono
 
 @Service
 class EmojiReplacer(private val emojiStore: EmojiStore) : EventListener<MessageCreateEvent> {
@@ -55,10 +55,15 @@ class EmojiReplacer(private val emojiStore: EmojiStore) : EventListener<MessageC
                 .withReason("${message.author.orElseThrow().tag} posted a message containing emoji(s)")
                 .awaitSingle()
 
-            webhook.executeAndWait(WebhookExecuteSpec.builder().content(finalMessage).build())
-                .onErrorResume { Mono.empty() }.awaitSingleOrNull()
-            webhook.delete().awaitSingleOrNull()
-            message.delete().awaitSingleOrNull()
+            try {
+                webhook.executeAndWait(
+                    WebhookExecuteSpec.builder().content(finalMessage).allowedMentions(AllowedMentions.suppressAll())
+                        .build()
+                ).awaitSingle()
+                message.delete().awaitSingleOrNull()
+            } finally {
+                webhook.delete().awaitSingleOrNull()
+            }
         }
     }
 

@@ -1,6 +1,7 @@
 package com.chrisch.discordbot.event
 
 import com.chrisch.discordbot.util.CustomColor
+import com.chrisch.discordbot.util.Limit
 import com.chrisch.discordbot.util.Utils.getMessageUrl
 import discord4j.core.event.domain.message.MessageDeleteEvent
 import discord4j.core.`object`.entity.Message
@@ -23,7 +24,7 @@ class GhostPingDetector : EventListener<MessageDeleteEvent> {
             return
         }
 
-        if (message.userMentions.stream().allMatch { user ->
+        if (message.roleMentionIds.isEmpty() && message.userMentions.stream().allMatch { user ->
                 user.id == message.author.orElseThrow().id || user.isBot
             }
         ) {
@@ -49,7 +50,7 @@ class GhostPingDetector : EventListener<MessageDeleteEvent> {
                     addField("Author", message.author.orElseThrow().tag, false)
                 }
             }
-            .addField("Message", message.content, false)
+            .addField("Message", message.content.take(Limit.EMBED_FIELD), false)
             .apply {
                 if (repliedToMessage != null) {
                     addField(

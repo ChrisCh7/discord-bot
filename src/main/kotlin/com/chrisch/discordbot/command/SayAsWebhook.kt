@@ -7,6 +7,7 @@ import discord4j.core.`object`.entity.channel.TopLevelGuildMessageChannel
 import discord4j.core.spec.WebhookExecuteSpec
 import discord4j.discordjson.json.ApplicationCommandOptionData
 import discord4j.discordjson.json.ApplicationCommandRequest
+import discord4j.rest.util.AllowedMentions
 import discord4j.rest.util.Image
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
@@ -45,8 +46,9 @@ class SayAsWebhook : CommandHandler<ChatInputInteractionEvent> {
                 .withReason("${member.tag} said something as a webhook")
                 .awaitSingle()
 
-            webhook.executeAndWait(WebhookExecuteSpec.builder().content(content).build())
-                .flatMap { webhook.editMessage(it.id).withContentOrNull(content) } // emojis appear only after editing
+            webhook.executeAndWait(
+                WebhookExecuteSpec.builder().content(content).allowedMentions(AllowedMentions.suppressAll()).build()
+            ).flatMap { webhook.editMessage(it.id).withContentOrNull(content) } // emojis appear only after editing
                 .onErrorResume { Mono.empty() }.awaitSingleOrNull()
             webhook.delete().awaitSingleOrNull()
         }

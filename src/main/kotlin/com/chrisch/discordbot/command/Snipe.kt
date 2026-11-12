@@ -1,6 +1,7 @@
 package com.chrisch.discordbot.command
 
 import com.chrisch.discordbot.util.CustomColor
+import com.chrisch.discordbot.util.Limit
 import com.chrisch.discordbot.util.SnipeStore
 import discord4j.core.event.domain.interaction.ChatInputInteractionEvent
 import discord4j.core.`object`.command.ApplicationCommandOption
@@ -72,7 +73,7 @@ class Snipe(private val snipeStore: SnipeStore) : CommandHandler<ChatInputIntera
             .addField("Author", lastDeletedMessageInChannel.author, false)
             .apply {
                 if (lastDeletedMessageInChannel.message.isNotBlank()) {
-                    addField("Message", lastDeletedMessageInChannel.message, false)
+                    addField("Message", lastDeletedMessageInChannel.message.take(Limit.EMBED_FIELD), false)
                 }
                 if (lastDeletedMessageInChannel.images.isNotEmpty()) {
                     image(lastDeletedMessageInChannel.images.first())
