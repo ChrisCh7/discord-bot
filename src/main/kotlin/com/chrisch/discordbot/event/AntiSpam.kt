@@ -36,7 +36,7 @@ class AntiSpam(private val config: Config) : EventListener<MessageCreateEvent> {
                     "User: ${message.author.orElseThrow().tag} (${message.author.orElseThrow().id.asString()})\n" +
                             "Reason: posted in <#${config.antiSpamChannelId}> (anti-spam trap)\n" +
                             "Proof:\n" +
-                            "```\n${message.content.take(Limit.MESSAGE)}\n```" +
+                            "```\n${message.content.take(Limit.MESSAGE_QUOTE)}\n```" +
                             "Action took: ban + delete message history previous hour"
                 )
             }.onErrorResume { Mono.empty() }.awaitSingleOrNull()

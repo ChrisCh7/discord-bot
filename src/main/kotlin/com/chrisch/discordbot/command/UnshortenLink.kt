@@ -15,6 +15,7 @@ import org.springframework.web.reactive.function.client.WebClientException
 import reactor.kotlin.core.publisher.toMono
 import reactor.netty.http.client.HttpClient
 import java.net.*
+import java.time.Duration
 
 
 @Service
@@ -37,6 +38,7 @@ class UnshortenLink : CommandHandler<ChatInputInteractionEvent> {
 
     private val httpClient = HttpClient.create()
         .followRedirect(true)
+        .responseTimeout(Duration.ofSeconds(10))
         .doOnConnected { connection ->
             val address = (connection.channel().remoteAddress() as InetSocketAddress).address
             if (isNonPublic(address)) {
@@ -58,7 +60,7 @@ class UnshortenLink : CommandHandler<ChatInputInteractionEvent> {
         val url = getOptionValue(event, "url").asString()
         val uri = runCatching { URI(if ("://" in url) url else "https://$url") }.getOrNull()
 
-        if (uri == null || uri.scheme.lowercase() !in setOf("http", "https") || uri.host == null) {
+        if (uri == null || uri.scheme?.lowercase() !in setOf("http", "https") || uri.host == null) {
             event.editReply("Only http(s) links are allowed").awaitSingle()
             return
         }

@@ -12,11 +12,12 @@ import discord4j.core.spec.WebhookExecuteSpec
 import discord4j.discordjson.json.ApplicationCommandOptionData
 import discord4j.discordjson.json.ApplicationCommandRequest
 import discord4j.rest.util.Image
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.reactor.awaitSingle
 import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
-import java.time.Duration
+import kotlin.time.Duration.Companion.seconds
 
 @Service
 class Emoji(private val emojiStore: EmojiStore) : CommandHandler<ChatInputInteractionEvent> {
@@ -58,18 +59,16 @@ class Emoji(private val emojiStore: EmojiStore) : CommandHandler<ChatInputIntera
         val emojiMatches = getEmojiMatches(emojiName)
 
         if (emojiMatches.isEmpty()) {
-            event.reply("Emoji not found!")
-                .delayElement(Duration.ofSeconds(2))
-                .then(event.deleteReply()).awaitSingleOrNull()
+            event.reply("Emoji not found!").awaitSingleOrNull()
+            delay(2.seconds)
+            event.deleteReply().awaitSingleOrNull()
             return
         }
 
         if (emojiMatches.size > 1) {
-            event.reply(
-                "Emoji not found.\n" +
-                        "Did you mean: ${emojiMatches.keys.joinToString(", ")}"
-            ).then(Mono.just(1)).delayElement(Duration.ofSeconds(10))
-                .then(event.deleteReply()).awaitSingleOrNull()
+            event.reply("Emoji not found.\nDid you mean: ${emojiMatches.keys.joinToString(", ")}").awaitSingleOrNull()
+            delay(10.seconds)
+            event.deleteReply().awaitSingleOrNull()
             return
         }
 

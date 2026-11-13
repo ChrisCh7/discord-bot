@@ -2,6 +2,7 @@ package com.chrisch.discordbot.command
 
 import com.chrisch.discordbot.util.SnipeStore
 import discord4j.core.event.domain.interaction.MessageInteractionEvent
+import discord4j.core.`object`.command.ApplicationCommand
 import discord4j.discordjson.json.ApplicationCommandRequest
 import discord4j.rest.util.Permission
 import kotlinx.coroutines.reactor.awaitSingle
@@ -16,7 +17,7 @@ class RemoveSnipeContextMenu(private val snipeStore: SnipeStore) : CommandHandle
     override val command: ApplicationCommandRequest
         get() = ApplicationCommandRequest.builder()
             .name(name)
-            .type(3)
+            .type(ApplicationCommand.Type.MESSAGE.value)
             .build()
 
     override suspend fun handle(event: MessageInteractionEvent) {

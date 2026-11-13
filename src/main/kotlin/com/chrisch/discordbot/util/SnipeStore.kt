@@ -5,7 +5,6 @@ import discord4j.core.`object`.entity.Message
 import org.springframework.stereotype.Component
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.CopyOnWriteArrayList
 
 @Component
 class SnipeStore {
@@ -16,7 +15,7 @@ class SnipeStore {
 
     val deletedMessages: ConcurrentHashMap<Snowflake, List<DeletedMessage>> = ConcurrentHashMap()
 
-    val deletedSnipes: CopyOnWriteArrayList<Snowflake> = CopyOnWriteArrayList()
+    val deletedSnipes: MutableSet<Snowflake> = ConcurrentHashMap.newKeySet()
 
     fun isSnipe(message: Message): Boolean =
         message.author.map { it.id == message.client.selfId }.orElse(false) &&

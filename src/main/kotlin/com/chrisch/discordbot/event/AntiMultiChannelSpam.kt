@@ -74,7 +74,7 @@ class AntiMultiChannelSpam(private val config: Config) : EventListener<MessageCr
                             "User: ${message.author.orElseThrow().tag} (${message.author.orElseThrow().id.asString()})\n" +
                                     "Reason: multi-channel spam\n" +
                                     "Proof:\n" +
-                                    "```\n${message.content.take(Limit.MESSAGE)}\n```" +
+                                    "```\n${message.content.take(Limit.MESSAGE_QUOTE)}\n```" +
                                     "Action took: 27 days timeout"
                         )
                     }.onErrorResume { Mono.empty() }.awaitSingleOrNull()

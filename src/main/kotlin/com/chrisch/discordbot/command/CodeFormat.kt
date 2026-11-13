@@ -1,5 +1,6 @@
 package com.chrisch.discordbot.command
 
+import com.chrisch.discordbot.util.Limit
 import com.chrisch.discordbot.util.Utils.getCodeBlock
 import com.chrisch.discordbot.util.Utils.getOptionValue
 import discord4j.common.util.Snowflake
@@ -43,7 +44,7 @@ class CodeFormat : CommandHandler<ChatInputInteractionEvent> {
                     getCodeBlock(
                         getOptionValue(event, "language").asString(),
                         message.content
-                    )
+                    ).take(Limit.MESSAGE).dropLast(4) + "\n```"
                 )
             }.awaitSingleOrNull()
     }

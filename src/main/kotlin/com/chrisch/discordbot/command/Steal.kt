@@ -55,11 +55,11 @@ class Steal(private val emojiStore: EmojiStore) : CommandHandler<ChatInputIntera
 
         event.deferReply().awaitSingleOrNull()
 
-        event.interaction.guild.awaitSingle()
-            .createEmoji(
-                getOptionValue(event, "emoji_name").asString(),
-                Image.ofUrl(getOptionValue(event, "emoji_url").asString()).awaitSingle()
-            ).doOnSuccess { emoji -> emoji?.let { emojiStore.emojis[emoji.name] = emoji.asFormat() } }
+        val guild = event.interaction.guild.awaitSingle()
+
+        Image.ofUrl(getOptionValue(event, "emoji_url").asString())
+            .flatMap { guild.createEmoji(getOptionValue(event, "emoji_name").asString(), it) }
+            .doOnNext { emoji -> emojiStore.emojis[emoji.name] = emoji.asFormat() }
             .flatMap { emoji -> event.editReply("${emoji.asFormat()} added as ${emoji.name}") }
             .doOnError { log.error("Failed to add emoji.", it) }
             .onErrorResume { event.editReply("Failed to add emoji.") }

@@ -22,17 +22,11 @@ object Utils {
         return "```$language\n$content\n```"
     }
 
-    fun getMessageUrl(message: Message): String {
-        return "https://discord.com/channels/${
-            message.guildId.orElseThrow().asString()
-        }/${message.channelId.asString()}/${message.id.asString()}"
-    }
+    fun getMessageUrl(message: Message): String =
+        getMessageUrl(message.guildId.orElseThrow(), message.channelId, message.id)
 
-    fun getMessageUrl(guildId: Snowflake, channelId: Snowflake, messageId: Snowflake): String {
-        return "https://discord.com/channels/${
-            guildId.asString()
-        }/${channelId.asString()}/${messageId.asString()}"
-    }
+    fun getMessageUrl(guildId: Snowflake, channelId: Snowflake, messageId: Snowflake): String =
+        "https://discord.com/channels/${guildId.asString()}/${channelId.asString()}/${messageId.asString()}"
 
     fun getEmoji(format: String): Emoji {
         val (animated, name, id) = emojiRegex.find(format)!!.destructured
