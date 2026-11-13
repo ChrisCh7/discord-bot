@@ -47,6 +47,11 @@ class RemoveSnipe(private val snipeStore: SnipeStore) : CommandHandler<ChatInput
         val snipeMsg = event.interaction.channel.awaitSingle()
             .getMessageById(Snowflake.of(Utils.getOptionValue(event, "snipe_id").asString())).awaitSingle()
 
+        if (!snipeStore.isSnipe(snipeMsg)) {
+            event.reply("That is not a snipe.").withEphemeral(true).awaitSingleOrNull()
+            return
+        }
+
         event.deferReply().awaitSingleOrNull()
 
         snipeStore.deletedSnipes.add(snipeMsg.id)

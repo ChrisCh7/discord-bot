@@ -12,7 +12,6 @@ import reactor.core.publisher.Mono
 import java.time.Duration
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.CopyOnWriteArrayList
 
 @Service
 class AntiMultiChannelSpam(private val config: Config) : EventListener<MessageCreateEvent> {
@@ -25,7 +24,7 @@ class AntiMultiChannelSpam(private val config: Config) : EventListener<MessageCr
         var deleted: Boolean
     )
 
-    private val userMessages: ConcurrentHashMap<Snowflake, CopyOnWriteArrayList<UserMessage>> = ConcurrentHashMap()
+    private val userMessages: ConcurrentHashMap<Snowflake, List<UserMessage>> = ConcurrentHashMap()
 
     override suspend fun execute(event: MessageCreateEvent) {
         val message = event.message
@@ -35,27 +34,16 @@ class AntiMultiChannelSpam(private val config: Config) : EventListener<MessageCr
         }
 
         val authorId = message.author.orElseThrow().id
-        userMessages.computeIfAbsent(authorId) { CopyOnWriteArrayList() }
+        val cutoff = message.timestamp.minus(WINDOW)
 
-        userMessages[authorId]!!.add(
-            UserMessage(
-                message.content,
-                message.id,
-                message.channelId,
-                message.timestamp,
-                false
-            )
-        )
+        userMessages.values.removeIf { it.last().timestamp < cutoff }
+        val recentMessages = userMessages.merge(
+            authorId,
+            listOf(UserMessage(message.content, message.id, message.channelId, message.timestamp, false))
+        ) { old, new -> old.filter { it.timestamp >= cutoff } + new }!!
 
-        if (userMessages[authorId]!!.size < THRESHOLD) {
-            return
-        }
-
-        val distinctMessages = userMessages[authorId]!!.stream().map { it.message }.distinct().toList()
-        val distinctChannels = userMessages[authorId]!!.stream().map { it.channelId }.distinct().toList()
-
-        if (distinctMessages.size == 1 && distinctChannels.size == THRESHOLD &&
-            userMessages[authorId]!!.last().timestamp.epochSecond - userMessages[authorId]!!.first().timestamp.epochSecond <= THRESHOLD * 2
+        if (recentMessages.distinctBy { it.message }.size == 1 &&
+            recentMessages.distinctBy { it.channelId }.size >= THRESHOLD
         ) {
             val authorMember = message.authorAsMember.awaitSingle()
             val guild = message.guild.awaitSingle()
@@ -65,10 +53,9 @@ class AntiMultiChannelSpam(private val config: Config) : EventListener<MessageCr
                     .withReason("multi-channel spam").awaitSingle()
             }
 
-            val purgeAlreadyStarted =
-                userMessages[authorId]!!.stream().filter { it.deleted }.toList().isNotEmpty()
+            val purgeAlreadyStarted = recentMessages.any { it.deleted }
 
-            userMessages[authorId]!!.forEach { userMessage ->
+            recentMessages.forEach { userMessage ->
                 if (!userMessage.deleted) {
                     guild.getChannelById(userMessage.channelId)
                         .ofType(TopLevelGuildMessageChannel::class.java)
@@ -93,11 +80,10 @@ class AntiMultiChannelSpam(private val config: Config) : EventListener<MessageCr
                     }.onErrorResume { Mono.empty() }.awaitSingleOrNull()
             }
         }
-
-        userMessages[authorId]!!.removeFirst()
     }
 
     companion object {
         private const val THRESHOLD = 5
+        private val WINDOW = Duration.ofSeconds(10)
     }
 }

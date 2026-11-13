@@ -28,7 +28,7 @@ class RemoveSnipeContextMenu(private val snipeStore: SnipeStore) : CommandHandle
         val member = event.interaction.member.orElseThrow()
         val message = event.resolvedMessage
 
-        if (message.embeds.size == 1 && message.embeds[0].title.orElse("title").equals("Snipe")) {
+        if (snipeStore.isSnipe(message)) {
             if (!member.basePermissions.awaitSingle().contains(Permission.ADMINISTRATOR)) {
                 event.reply("You don't have permission to use this command.").withEphemeral(true)
                     .awaitSingleOrNull()

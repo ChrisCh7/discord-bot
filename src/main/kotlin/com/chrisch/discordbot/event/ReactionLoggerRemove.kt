@@ -19,15 +19,15 @@ class ReactionLoggerRemove(private val config: Config) : EventListener<ReactionR
             return
         }
 
-        val user = event.user.awaitSingle()
-
-        if (user.isBot) {
-            return
-        }
-
         if (!config.trackedMessageIds.contains(event.messageId.asString()) &&
             !config.trackedChannelIds.contains(event.channelId.asString())
         ) {
+            return
+        }
+
+        val user = event.user.awaitSingle()
+
+        if (user.isBot) {
             return
         }
 
